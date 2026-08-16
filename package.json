@@ -1,0 +1,14 @@
+{
+  "name": "agent-universe",
+  "version": "1.0.0",
+  "description": "Agent Universe Command Center & Autonomous AI Swarm Simulator",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["ai", "agents", "swarm", "simulation", "render"],
+  "author": "Antigravity",
+  "license": "MIT",
+  "dependencies": {}
+}
