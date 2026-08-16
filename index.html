@@ -42,6 +42,9 @@
         <button class="top-tab" data-view="telemetry" id="tab-telemetry">
           <span class="tab-icon">📊</span> Swarm Telemetry
         </button>
+        <button class="btn btn-sm btn-outline-secondary mobile-menu-btn" id="btn-toggle-mobile-sidebar">
+          ☰ Swarm Controls
+        </button>
       </nav>
 
       <!-- Global Metrics Bar -->
@@ -318,9 +321,10 @@
                 <span class="player-meta mono" id="player-app-meta">Fully functional standalone web application</span>
               </div>
               <div class="player-actions">
+                <button class="btn btn-sm btn-outline-primary" id="btn-player-open-tab">↗ Standalone Tab</button>
                 <button class="btn btn-sm btn-outline-secondary" id="btn-player-fullscreen">⛶ Fullscreen</button>
                 <button class="btn btn-sm btn-outline-secondary" id="btn-player-view-code">💻 View Code</button>
-                <button class="btn btn-sm btn-primary" id="btn-player-download">⬇ Download HTML</button>
+                <button class="btn btn-sm btn-primary" id="btn-player-download">⬇ Download .html</button>
               </div>
             </div>
             <div class="app-player-body">
@@ -543,7 +547,8 @@
           <span class="artifact-meta" id="artifact-meta">Swarm Verified</span>
         </div>
         <div class="header-actions">
-          <button class="btn btn-sm btn-outline-secondary" id="btn-download-artifact">⬇ Download HTML</button>
+          <button class="btn btn-sm btn-outline-primary" id="btn-open-artifact-tab">↗ Open Standalone Tab</button>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-download-artifact">⬇ Download .html</button>
           <button class="modal-close" id="btn-close-artifact-x">✕</button>
         </div>
       </div>

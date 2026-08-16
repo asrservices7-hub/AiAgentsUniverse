@@ -2453,6 +2453,64 @@ class Renderer {
                 document.getElementById(`artifact-tab-${tab}`)?.classList.add('active');
             }
 
+            // Mobile Sidebar Toggle
+            if (e.target.id === 'btn-toggle-mobile-sidebar') {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) sidebar.classList.toggle('mobile-open');
+                return;
+            }
+
+            // Create Another App Button in Gallery
+            if (e.target.id === 'btn-create-another-app') {
+                this.switchView('universe');
+                setTimeout(() => {
+                    const inp = document.getElementById('quick-goal-input');
+                    if (inp) { inp.focus(); inp.scrollIntoView({ behavior: 'smooth' }); }
+                }, 100);
+                return;
+            }
+
+            // Fullscreen Sandbox Player
+            if (e.target.id === 'btn-player-fullscreen') {
+                const wrap = document.getElementById('player-iframe-wrap');
+                if (wrap) {
+                    if (wrap.requestFullscreen) wrap.requestFullscreen();
+                    else if (wrap.webkitRequestFullscreen) wrap.webkitRequestFullscreen();
+                }
+                return;
+            }
+
+            // Open Standalone in New Tab
+            const openTabBtn = e.target.closest('.btn-open-standalone-tab');
+            if (e.target.id === 'btn-player-open-tab' || e.target.id === 'btn-open-artifact-tab' || openTabBtn) {
+                const goalId = openTabBtn ? openTabBtn.dataset.goalId : (this._currentModalArtifact ? this._currentModalArtifact.id : null);
+                const goal = (goalId ? this.universe.goals.find(g => g.id === goalId) : null) || this._currentModalArtifact || this.universe.goals[0];
+                if (goal && goal.artifactData?.code) {
+                    const blob = new Blob([goal.artifactData.code], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                }
+                return;
+            }
+
+            // Download App from Gallery Card
+            const dlCardBtn = e.target.closest('.btn-download-app-card');
+            if (dlCardBtn) {
+                const goal = this.universe.goals.find(g => g.id === dlCardBtn.dataset.goalId);
+                if (goal && goal.artifactData?.code) {
+                    const blob = new Blob([goal.artifactData.code], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${(goal.text || 'app').replace(/[^a-z0-9]/gi, '_')}.html`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+                return;
+            }
+
             // Copy / Download Code
             if (e.target.id === 'btn-copy-artifact-code' || e.target.id === 'btn-player-view-code') {
                 const code = this._currentModalArtifact?.artifactData?.code;
@@ -2469,7 +2527,7 @@ class Renderer {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `${(this._currentModalArtifact.text || 'app').replace(/[^a-z0-9]/gi, '_')}.html`;
+                    a.download = `${(this._currentModalArtifact?.text || 'app').replace(/[^a-z0-9]/gi, '_')}.html`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
@@ -2823,12 +2881,17 @@ class Renderer {
         this.universe.goals.forEach(goal => {
             html += `
             <div class="app-gallery-card">
-              <span class="app-card-type">${goal.artifactData.type}</span>
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span class="app-card-type">${goal.artifactData.type}</span>
+                <span style="font-size:10px;font-weight:700;color:var(--accent-emerald)">✓ READY</span>
+              </div>
               <h4 class="app-card-title">${goal.artifactData.title}</h4>
-              <p style="font-size:12px;color:var(--text-muted)">Goal: "${goal.text}"</p>
-              <div style="display:flex;gap:8px;margin-top:auto;">
-                <button class="btn btn-sm btn-success btn-open-app-modal" data-goal-id="${goal.id}" style="flex:1;">🎮 Play / Test</button>
-                <button class="btn btn-sm btn-outline-secondary btn-test-in-gallery" data-goal-id="${goal.id}">⛶ Load</button>
+              <p style="font-size:12px;color:var(--text-muted);line-height:1.4;">Goal: "${goal.text}"</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:auto;padding-top:10px;">
+                <button class="btn btn-sm btn-success btn-open-app-modal" data-goal-id="${goal.id}">🎮 Play App</button>
+                <button class="btn btn-sm btn-outline-primary btn-open-standalone-tab" data-goal-id="${goal.id}">↗ Open Tab</button>
+                <button class="btn btn-sm btn-outline-secondary btn-test-in-gallery" data-goal-id="${goal.id}">⛶ In Sandbox</button>
+                <button class="btn btn-sm btn-outline-secondary btn-download-app-card" data-goal-id="${goal.id}">⬇ Download</button>
               </div>
             </div>`;
         });
