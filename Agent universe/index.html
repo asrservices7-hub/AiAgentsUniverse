@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Agent Universe — Autonomous AI Agent Swarm Command Center with 1 Crore+ agents across industries and real task pipelines.">
+  <title>Agent Universe — AI Swarm Command Center</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="light-theme">
+  <div id="app">
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- TOP HEADER: UNIVERSAL OVERSEER TELEMETRY       -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <header id="overseer-bar">
+      <div class="overseer-brand">
+        <div class="brand-badge">
+          <span class="pulse-dot"></span>
+          <span class="brand-title">NEXUS</span>
+        </div>
+        <div class="brand-details">
+          <span class="brand-name">Universal AI Overseer</span>
+          <span class="system-status-pill" id="overseer-status">● SYSTEM OPTIMAL</span>
+        </div>
+      </div>
+
+      <!-- Top Primary Navigation Tabs -->
+      <nav class="top-nav-tabs">
+        <button class="top-tab active" data-view="universe" id="tab-universe">
+          <span class="tab-icon">🌐</span> Universe & Goals
+        </button>
+        <button class="top-tab" data-view="task-tree" id="tab-task-tree">
+          <span class="tab-icon">🌳</span> Task Tree & Swarm Hierarchy
+        </button>
+        <button class="top-tab" data-view="industries-hub" id="tab-industries">
+          <span class="tab-icon">🏭</span> Active Industries & Factories
+        </button>
+        <button class="top-tab" data-view="suggestions" id="tab-suggestions">
+          <span class="tab-icon">💡</span> Industry Suggestions
+        </button>
+        <button class="top-tab" data-view="apps-gallery" id="tab-apps">
+          <span class="tab-icon">🚀</span> Created Apps <span class="tab-badge" id="apps-count-badge">0</span>
+        </button>
+        <button class="top-tab" data-view="telemetry" id="tab-telemetry">
+          <span class="tab-icon">📊</span> Swarm Telemetry
+        </button>
+        <button class="btn btn-sm btn-outline-secondary mobile-menu-btn" id="btn-toggle-mobile-sidebar">
+          ☰ Swarm Controls
+        </button>
+      </nav>
+
+      <!-- Global Metrics Bar -->
+      <div class="overseer-metrics">
+        <div class="metric-card">
+          <span class="metric-value mono" id="metric-total-agents">1,00,00,000</span>
+          <span class="metric-label">Total Swarm</span>
+        </div>
+        <div class="metric-card highlight-green">
+          <span class="metric-value mono" id="metric-active-agents">0</span>
+          <span class="metric-label">Active Agents</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value mono" id="metric-bench-agents">1,00,00,000</span>
+          <span class="metric-label">Reserve Bench</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value mono" id="metric-tasks-completed">0</span>
+          <span class="metric-label">Tasks Done</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value mono" id="metric-throughput">0</span>
+          <span class="metric-label">Tasks / min</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value mono" id="metric-uptime">00:00:00</span>
+          <span class="metric-label">Uptime</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- MAIN WORKSPACE                                 -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="main-content">
+
+      <!-- ─── SIDEBAR CONTROLS ─── -->
+      <aside id="sidebar">
+        <div class="sidebar-scroll">
+
+          <!-- Swarm Quick Actions -->
+          <div class="sidebar-section">
+            <h3 class="section-title">SWARM ALLOCATION</h3>
+            <div class="quick-stats-box">
+              <div class="qs-row">
+                <span class="qs-label">Available on Bench</span>
+                <span class="qs-val mono" id="bench-available">1,00,00,000</span>
+              </div>
+              <div class="qs-row">
+                <span class="qs-label">Deploying</span>
+                <span class="qs-val mono" id="bench-deploying">0</span>
+              </div>
+              <div class="qs-progress-wrap">
+                <div class="qs-bar-track">
+                  <div class="qs-bar-fill" id="bench-bar"></div>
+                </div>
+                <span class="qs-subtext" id="bench-pct">0% active</span>
+              </div>
+            </div>
+
+            <div class="action-buttons-group">
+              <button id="btn-deploy-batch" class="btn btn-primary btn-block">
+                ⚡ Auto-Deploy 10K Agents
+              </button>
+              <button id="btn-recall-batch" class="btn btn-secondary btn-block">
+                ↩ Recall Idle Agents
+              </button>
+              <button id="btn-free-all" class="btn btn-warning btn-block">
+                🪑 Free All to Bench
+              </button>
+              <button id="btn-emergency-stop" class="btn btn-danger btn-block">
+                ⏸ Emergency Pause
+              </button>
+            </div>
+          </div>
+
+          <!-- Manual Agent Dispatcher -->
+          <div class="sidebar-section">
+            <h3 class="section-title">🛠️ MANUAL AGENT DISPATCH</h3>
+            <div class="manual-dispatch-card">
+              <label class="qs-label" style="font-size:11px;font-weight:600;">Target Factory</label>
+              <select id="manual-target-factory" class="form-select form-select-sm" style="margin:4px 0 8px;">
+                <!-- Populated dynamically -->
+              </select>
+              <label class="qs-label" style="font-size:11px;font-weight:600;">Agents to Assign</label>
+              <div style="display:flex;gap:4px;margin:4px 0 8px;">
+                <input type="number" id="manual-agent-count" class="form-input form-input-sm mono" value="1000" min="10" max="10000000" style="flex:1;">
+              </div>
+              <div style="display:flex;gap:4px;margin-bottom:8px;">
+                <button class="btn btn-sm btn-secondary quick-dispatch-chip" data-val="100">+100</button>
+                <button class="btn btn-sm btn-secondary quick-dispatch-chip" data-val="1000">+1K</button>
+                <button class="btn btn-sm btn-secondary quick-dispatch-chip" data-val="10000">+10K</button>
+                <button class="btn btn-sm btn-secondary quick-dispatch-chip" data-val="50000">+50K</button>
+              </div>
+              <button id="btn-manual-deploy" class="btn btn-sm btn-primary btn-block">
+                🚀 Deploy Agents Now
+              </button>
+            </div>
+          </div>
+
+          <!-- Simulation Speed -->
+          <div class="sidebar-section">
+            <h3 class="section-title">SIMULATION ENGINE</h3>
+            <div class="slider-box">
+              <div class="slider-header">
+                <span>Speed Multiplier</span>
+                <span class="slider-val mono" id="sim-speed-label">5x</span>
+              </div>
+              <input type="range" id="sim-speed" min="1" max="20" value="5" class="range-slider">
+            </div>
+          </div>
+
+          <!-- Quick Navigation List -->
+          <div class="sidebar-section">
+            <div class="section-header-row">
+              <h3 class="section-title">INDUSTRIES</h3>
+              <button class="btn-text-link" id="btn-sidebar-add-industry">+ Add</button>
+            </div>
+            <div id="industry-nav" class="industry-nav-list"></div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- ─── MAIN VIEWPORT ─── -->
+      <main id="viewport">
+
+        <!-- Convergence Mode Active Banner -->
+        <div id="convergence-banner" class="convergence-banner">
+          <div class="convergence-icon">🎯</div>
+          <div class="convergence-content">
+            <div class="convergence-tag">UNIVERSAL CONVERGENCE ACTIVE</div>
+            <div class="convergence-goal-text" id="convergence-goal-text">All 1 Crore Agents Focused on Universal Goal</div>
+          </div>
+          <div class="convergence-meter">
+            <div class="meter-bar">
+              <div class="meter-fill" id="convergence-bar"></div>
+            </div>
+            <span class="meter-label mono" id="convergence-pct">0.0%</span>
+          </div>
+          <span class="convergence-workers mono" id="convergence-agents-working">0 agents</span>
+          <button class="btn btn-sm btn-outline-danger" id="btn-exit-convergence">Exit Convergence</button>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- VIEW 1: UNIVERSE & GOALS (DEFAULT)             -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div id="universe-view" class="view-panel active-view">
+          
+          <!-- Instant Goal Creator Card (With Auto & Manual Swarm Modes!) -->
+          <div class="hero-goal-creator">
+            <div class="hero-content">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div class="hero-badge">✨ INSTANT SWARM GOAL DEPLOYER</div>
+                <!-- Mode Toggle -->
+                <div class="deploy-mode-toggle">
+                  <span style="font-size:11px;font-weight:700;color:var(--text-muted);">DEPLOYMENT MODE:</span>
+                  <button class="mode-pill active" id="mode-auto" data-mode="auto">⚡ Auto-Scale Swarm</button>
+                  <button class="mode-pill" id="mode-manual" data-mode="manual">🛠️ Manual Agent Sizing</button>
+                </div>
+              </div>
+              <h2 class="hero-title">What should the AI Swarm build or solve?</h2>
+              <p class="hero-desc">Type any application, device, tool, or objective. The 1 Crore agent ecosystem will automatically allocate workers, design, code, test, and render a live working app.</p>
+              
+              <div class="goal-input-bar">
+                <input type="text" id="quick-goal-input" class="goal-input" placeholder="e.g. make a smartwatch, build a calculator, create a music player, draw app, todo list...">
+                <button id="btn-quick-deploy-goal" class="btn btn-success btn-lg">
+                  🚀 Deploy Swarm Goal
+                </button>
+                <button id="btn-quick-convergence" class="btn btn-amber btn-lg" title="Mobilize entire universe for this goal">
+                  🎯 Convergence Mode
+                </button>
+              </div>
+
+              <!-- Manual Custom Controls Box (Collapsible) -->
+              <div id="manual-goal-options" class="manual-goal-options" style="display:none;">
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <label style="font-size:11px;font-weight:700;color:var(--text-heading);">MANUAL AGENTS:</label>
+                    <input type="number" id="manual-goal-agent-count" class="form-input form-input-sm mono" value="5000" min="50" max="10000000" style="width:120px;">
+                  </div>
+                  <div style="display:flex;gap:4px;">
+                    <button class="sugg-chip manual-size-chip" data-size="500">500</button>
+                    <button class="sugg-chip manual-size-chip" data-size="2000">2,000</button>
+                    <button class="sugg-chip manual-size-chip" data-size="10000">10,000</button>
+                    <button class="sugg-chip manual-size-chip" data-size="50000">50,000</button>
+                    <button class="sugg-chip manual-size-chip" data-size="100000">1 Lakh</button>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+                    <label style="font-size:11px;font-weight:700;color:var(--text-heading);">TARGET:</label>
+                    <select id="manual-goal-target-select" class="form-select form-select-sm" style="width:200px;">
+                      <option value="auto">🌐 Auto-Selected Optimal Industry</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="quick-suggestions">
+                <span class="sugg-label">Quick Goal Templates:</span>
+                <button class="sugg-chip" data-goal="build a video creator studio app">🎬 Video Creator</button>
+                <button class="sugg-chip" data-goal="create a modern landing page for a SaaS platform">🌐 Landing Page</button>
+                <button class="sugg-chip" data-goal="make a small calculator">🧮 Calculator</button>
+                <button class="sugg-chip" data-goal="make a smartwatch">⌚ Smartwatch OS</button>
+                <button class="sugg-chip" data-goal="build a form builder with draggable elements">📝 Form Builder</button>
+                <button class="sugg-chip" data-goal="create a kanban board with drag and drop">📋 Kanban Board</button>
+                <button class="sugg-chip" data-goal="build a markdown live editor with preview">📝 Markdown Editor</button>
+                <button class="sugg-chip" data-goal="build a personal budget and expense tracker">💰 Budget Tracker</button>
+                <button class="sugg-chip" data-goal="create an AI chat assistant with prompt history">💬 AI Chatbot</button>
+                <button class="sugg-chip" data-goal="build a modern music player with audio spectrum">🎵 Music Player</button>
+                <button class="sugg-chip" data-goal="build a crypto and stock market dashboard">📈 Crypto Dashboard</button>
+                <button class="sugg-chip" data-goal="create a retro arcade snake game">🎮 Snake Game</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Goals Section -->
+          <div class="content-section">
+            <div class="section-header">
+              <div>
+                <h3 class="section-heading">ACTIVE SWARM GOALS</h3>
+                <p class="section-subtext">Live engineering pipelines and interactive apps in development</p>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-sm btn-outline-primary" id="btn-view-active-tree">🌳 View Task Tree</button>
+                <button class="btn btn-sm btn-outline-secondary" id="btn-open-goal-modal">+ Advanced Goal</button>
+              </div>
+            </div>
+            <div id="active-goals-container" class="goals-grid"></div>
+          </div>
+
+          <!-- Universe Snapshot Section -->
+          <div class="content-section">
+            <div class="section-header">
+              <div>
+                <h3 class="section-heading">ACTIVE INDUSTRY ECOSYSTEMS</h3>
+                <p class="section-subtext">Major task branches currently allocated across the swarm</p>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-sm btn-outline-primary" id="btn-browse-suggestions-main">💡 Browse Suggestions</button>
+                <button class="btn btn-sm btn-primary" id="btn-add-industry-main">+ Custom Industry</button>
+              </div>
+            </div>
+            <div id="industries-grid" class="industries-grid"></div>
+          </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- VIEW: HIERARCHICAL TASK DECOMPOSITION TREE      -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div id="task-tree-view" class="view-panel">
+          <div class="view-header-bar">
+            <div>
+              <h2 class="view-title">🌳 Hierarchical Task Decomposition Tree</h2>
+              <p class="view-subtitle">Major Goal → Critical Task Branches (Industries) → Sub-Tasks (Factories) → AI Agent Execution</p>
+            </div>
+            <div class="header-actions">
+              <select id="tree-goal-selector" class="form-select form-select-sm" style="min-width:260px;">
+                <!-- Populated dynamically with active goals -->
+              </select>
+            </div>
+          </div>
+          
+          <div id="task-tree-container" class="task-tree-container">
+            <!-- Dynamic interactive task tree rendered here -->
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- VIEW 2: ACTIVE INDUSTRIES & FACTORIES HUB       -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div id="industries-hub-view" class="view-panel">
+          <div class="view-header-bar">
+            <div>
+              <h2 class="view-title">🏭 Active Industries & Production Factories</h2>
+              <p class="view-subtitle">Manage, rename, and customize all specialized agent factories across your ecosystem</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-outline-secondary" id="btn-view-suggestions-from-hub">💡 View Suggestions</button>
+              <button class="btn btn-primary" id="btn-add-industry-hub">+ Add Custom Industry</button>
+            </div>
+          </div>
+          <div id="all-industries-factories-container" class="industries-hub-list"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- VIEW: SUGGESTED INDUSTRIES & FACTORIES CATALOG  -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div id="suggestions-view" class="view-panel">
+          <div class="view-header-bar">
+            <div>
+              <h2 class="view-title">💡 Suggested Industries & Factories Catalog</h2>
+              <p class="view-subtitle">Browse pre-engineered industrial templates and add them to your active swarm with 1 click</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-primary" id="btn-add-custom-industry-from-sugg">+ Create From Scratch</button>
+            </div>
+          </div>
+          <div id="suggestions-catalog-grid" class="suggestions-catalog-grid">
+            <!-- Populated dynamically from SUGGESTED_TEMPLATES -->
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- VIEW 3: CREATED APPS & SANDBOX GALLERY         -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div id="apps-gallery-view" class="view-panel">
+          <div class="view-header-bar">
+            <div>
+              <h2 class="view-title">🚀 Created Applications & Live Sandboxes</h2>
+              <p class="view-subtitle">Test and use working applications generated and deployed by the AI Swarm</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-success" id="btn-create-another-app">+ Build Another App</button>
+            </div>
+          </div>
+
+          <!-- Featured Active App Player -->
+          <div class="app-player-container" id="featured-app-player">
+            <div class="app-player-header">
+              <div class="app-player-info">
+                <span class="player-badge">● LIVE SANDBOX</span>
+                <h3 class="player-title" id="player-app-title">Precision Calculator</h3>
+                <span class="player-meta mono" id="player-app-meta">Fully functional standalone web application</span>
+              </div>
+              <div class="player-actions">
+                <button class="btn btn-sm btn-outline-primary" id="btn-player-open-tab">↗ Standalone Tab</button>
+                <button class="btn btn-sm btn-outline-secondary" id="btn-player-fullscreen">⛶ Fullscreen</button>
+                <button class="btn btn-sm btn-outline-secondary" id="btn-player-view-code">💻 View Code</button>
+                <button class="btn btn-sm btn-primary" id="btn-player-download">⬇ Download .html</button>
+              </div>
+            </div>
+            <div class="app-player-body">
+              <div class="player-iframe-wrap" id="player-iframe-wrap">
+                <!-- Live Iframe inserted by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Apps History Grid -->
+          <div class="content-section">
+            <h3 class="section-heading">ALL GENERATED APPS</h3>
+            <div id="apps-gallery-grid" class="apps-gallery-grid"></div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- VIEW 4: SWARM TELEMETRY & LIVE FEED            -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div id="telemetry-view" class="view-panel">
+          <div class="view-header-bar">
+            <div>
+              <h2 class="view-title">📊 Swarm Telemetry & Operations</h2>
+              <p class="view-subtitle">Real-time throughput metrics, agent assignment telemetry, and execution logs</p>
+            </div>
+          </div>
+          <div class="telemetry-grid">
+            <div class="telemetry-card">
+              <h4 class="card-title">SWARM UTILIZATION</h4>
+              <div class="big-metric-display" id="tel-utilization">0.00%</div>
+              <p class="card-desc">Active agents working on production pipelines</p>
+            </div>
+            <div class="telemetry-card">
+              <h4 class="card-title">TOTAL COMPLETED TASKS</h4>
+              <div class="big-metric-display mono" id="tel-tasks">0</div>
+              <p class="card-desc">Lifetime units of work executed</p>
+            </div>
+            <div class="telemetry-card">
+              <h4 class="card-title">OPERATIONAL THROUGHPUT</h4>
+              <div class="big-metric-display mono" id="tel-throughput">0</div>
+              <p class="card-desc">Estimated completed tasks per minute</p>
+            </div>
+          </div>
+          <div class="telemetry-feed-section">
+            <h4 class="card-title">REAL-TIME GLOBAL EVENT LOG</h4>
+            <div id="telemetry-full-events" class="telemetry-event-list"></div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- VIEW 5: INDUSTRY DETAIL VIEW                   -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div id="industry-view" class="view-panel">
+          <div class="view-header-bar">
+            <div class="header-with-back">
+              <button class="btn btn-sm btn-secondary" id="btn-back-to-universe">← Back</button>
+              <div>
+                <h2 class="view-title" id="industry-title">Technology Industry</h2>
+                <p class="view-subtitle" id="industry-subtitle">Software development and infrastructure</p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-outline-secondary" id="btn-edit-current-industry">✎ Edit Industry</button>
+              <button class="btn btn-primary" id="btn-add-factory-to-current">+ Add Factory</button>
+            </div>
+          </div>
+          <div class="industry-metrics-row" id="industry-metrics"></div>
+          <div id="factories-grid" class="factories-grid"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- VIEW 6: FACTORY DETAIL VIEW                    -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div id="factory-view" class="view-panel">
+          <div class="view-header-bar">
+            <div class="header-with-back">
+              <button class="btn btn-sm btn-secondary" id="btn-back-to-industry">← Back</button>
+              <div>
+                <h2 class="view-title" id="factory-title">API Development Factory</h2>
+                <p class="view-subtitle" id="factory-subtitle">Factory details</p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-outline-secondary" id="btn-customize-current-factory">✎ Rename / Edit Factory</button>
+              <button class="btn btn-success btn-sm" id="btn-factory-add-agents">+ 50 Agents</button>
+              <button class="btn btn-secondary btn-sm" id="btn-factory-remove-agents">− 50 Agents</button>
+            </div>
+          </div>
+
+          <div class="factory-layout-grid">
+            <div class="factory-col-main">
+              <!-- Goal & Progress -->
+              <div class="white-card">
+                <h4 class="card-heading">FACTORY OBJECTIVE</h4>
+                <div id="factory-goal-content"></div>
+              </div>
+
+              <!-- Active Task Queue -->
+              <div class="white-card">
+                <div class="card-header-flex">
+                  <h4 class="card-heading">LIVE TASK PIPELINE <span class="pill-badge" id="factory-task-count">0</span></h4>
+                </div>
+                <div id="factory-tasks-list" class="tasks-scroll-list"></div>
+              </div>
+
+              <!-- Output Log -->
+              <div class="white-card">
+                <h4 class="card-heading">ENGINEERING OUTPUT LOG</h4>
+                <div id="factory-output-log" class="output-console-box"></div>
+              </div>
+            </div>
+
+            <div class="factory-col-side">
+              <!-- Stats -->
+              <div class="white-card" id="factory-stats"></div>
+
+              <!-- Assigned Agents -->
+              <div class="white-card">
+                <h4 class="card-heading">ASSIGNED AGENTS <span class="pill-badge" id="factory-agent-count">0</span></h4>
+                <div id="factory-agents-list" class="agents-scroll-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <!-- ─── RIGHT LIVE FEED DRAWER ─── -->
+      <aside id="event-feed">
+        <div class="feed-header">
+          <h3 class="feed-title">LIVE SWARM FEED</h3>
+          <div class="feed-actions">
+            <button id="btn-clear-feed" class="btn-icon" title="Clear log">✕</button>
+          </div>
+        </div>
+        <div class="feed-filters">
+          <button class="filter-pill active" data-filter="all">All</button>
+          <button class="filter-pill" data-filter="task">Tasks</button>
+          <button class="filter-pill" data-filter="deploy">Deploy</button>
+          <button class="filter-pill" data-filter="alert">Alerts</button>
+        </div>
+        <div id="events-list" class="events-scroll-container"></div>
+      </aside>
+
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- DIALOG MODALS                                   -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="modal-overlay" class="modal-overlay">
+
+    <!-- 1. Customization Modal (Industries / Factories) -->
+    <div id="modal-customize" class="modal" style="display:none">
+      <div class="modal-header">
+        <h3 id="customize-title">Customize Item</h3>
+        <button class="modal-close" id="btn-close-customize-x">✕</button>
+      </div>
+      <div class="modal-body" id="customize-body">
+        <!-- Dynamic form fields injected by JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-customize">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-customize">Save Changes</button>
+      </div>
+    </div>
+
+    <!-- 2. Advanced Goal Modal -->
+    <div id="modal-goal" class="modal" style="display:none">
+      <div class="modal-header">
+        <h3>Deploy Custom Swarm Goal</h3>
+        <button class="modal-close" id="btn-close-goal-x">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Goal Description</label>
+          <textarea id="goal-text" class="form-textarea" placeholder="e.g. Create a scientific calculator with memory and history functions..."></textarea>
+          <span class="form-hint">The AI swarm will automatically build, test, and render a live interactive app.</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select id="goal-priority" class="form-select">
+              <option value="P0">P0 — Critical (Immediate Swarm Focus)</option>
+              <option value="P1">P1 — High</option>
+              <option value="P2" selected>P2 — Normal</option>
+              <option value="P3">P3 — Low</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subtask Complexity</label>
+            <input type="number" id="goal-subtasks" class="form-input" value="1000" min="100" max="100000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Optional Targeting</label>
+          <select id="goal-scope" class="form-select">
+            <option value="universe" selected>🌐 Entire Universe (Auto-orchestrated swarm)</option>
+            <option value="industry">🏭 Target Specific Industry</option>
+            <option value="factory">⚙️ Target Specific Factory</option>
+          </select>
+        </div>
+        <div class="form-group" id="goal-target-group" style="display:none">
+          <label class="form-label">Selected Targets</label>
+          <div id="goal-targets" class="target-checkbox-box"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-goal">Cancel</button>
+        <button class="btn btn-success" id="btn-submit-goal">🚀 Launch Goal</button>
+      </div>
+    </div>
+
+    <!-- 3. Standalone Artifact Modal Viewer -->
+    <div id="modal-artifact" class="modal modal-xl" style="display:none">
+      <div class="modal-header">
+        <div>
+          <h3 id="artifact-title">Generated Application</h3>
+          <span class="artifact-meta" id="artifact-meta">Swarm Verified</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-sm btn-outline-primary" id="btn-open-artifact-tab">↗ Open Standalone Tab</button>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-download-artifact">⬇ Download .html</button>
+          <button class="modal-close" id="btn-close-artifact-x">✕</button>
+        </div>
+      </div>
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="preview">🎮 Interactive App</button>
+        <button class="modal-tab" data-tab="code">💻 Source Code</button>
+        <button class="modal-tab" data-tab="logs">📋 Swarm Build Logs</button>
+      </div>
+      <div class="modal-body-scroll">
+        <div id="artifact-tab-preview" class="artifact-tab-panel active">
+          <div class="modal-sandbox-frame" id="sandbox-container"></div>
+        </div>
+        <div id="artifact-tab-code" class="artifact-tab-panel">
+          <div class="code-header-bar">
+            <span class="mono-label">HTML5 / CSS3 / ES6</span>
+            <button class="btn btn-sm btn-secondary" id="btn-copy-artifact-code">📋 Copy All Code</button>
+          </div>
+          <pre class="code-display" id="artifact-code-view"><code></code></pre>
+        </div>
+        <div id="artifact-tab-logs" class="artifact-tab-panel">
+          <div id="artifact-logs-view" class="logs-container"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span class="status-indicator-tag" id="artifact-status-pill">● ACTIVE & VERIFIED</span>
+        <button class="btn btn-secondary" id="btn-close-artifact">Close</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+# Netlify Configuration for Agent Universe
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
