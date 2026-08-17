@@ -33,8 +33,14 @@
         <button class="top-tab active" data-view="universe" id="tab-universe">
           <span class="tab-icon">🌐</span> Universe & Goals
         </button>
+        <button class="top-tab" data-view="task-tree" id="tab-task-tree">
+          <span class="tab-icon">🌳</span> Task Tree & Swarm Hierarchy
+        </button>
         <button class="top-tab" data-view="industries-hub" id="tab-industries">
-          <span class="tab-icon">🏭</span> Industries & Factories
+          <span class="tab-icon">🏭</span> Active Industries & Factories
+        </button>
+        <button class="top-tab" data-view="suggestions" id="tab-suggestions">
+          <span class="tab-icon">💡</span> Industry Suggestions
         </button>
         <button class="top-tab" data-view="apps-gallery" id="tab-apps">
           <span class="tab-icon">🚀</span> Created Apps <span class="tab-badge" id="apps-count-badge">0</span>
@@ -243,15 +249,19 @@
               </div>
 
               <div class="quick-suggestions">
-                <span class="sugg-label">Quick Templates:</span>
+                <span class="sugg-label">Quick Goal Templates:</span>
+                <button class="sugg-chip" data-goal="build a video creator studio app">🎬 Video Creator</button>
+                <button class="sugg-chip" data-goal="create a modern landing page for a SaaS platform">🌐 Landing Page</button>
+                <button class="sugg-chip" data-goal="make a small calculator">🧮 Calculator</button>
                 <button class="sugg-chip" data-goal="make a smartwatch">⌚ Smartwatch OS</button>
-                <button class="sugg-chip" data-goal="make a small calculator">🧮 Calculator App</button>
-                <button class="sugg-chip" data-goal="build a modern music player">🎵 Music Player</button>
-                <button class="sugg-chip" data-goal="create an AI chat assistant">💬 AI Chatbot</button>
-                <button class="sugg-chip" data-goal="build a canvas drawing tool">🎨 Canvas Drawing</button>
-                <button class="sugg-chip" data-goal="build a modern todo and kanban manager">📋 Todo Manager</button>
-                <button class="sugg-chip" data-goal="create a retro arcade snake game">🎮 Snake Game</button>
+                <button class="sugg-chip" data-goal="build a form builder with draggable elements">📝 Form Builder</button>
+                <button class="sugg-chip" data-goal="create a kanban board with drag and drop">📋 Kanban Board</button>
+                <button class="sugg-chip" data-goal="build a markdown live editor with preview">📝 Markdown Editor</button>
+                <button class="sugg-chip" data-goal="build a personal budget and expense tracker">💰 Budget Tracker</button>
+                <button class="sugg-chip" data-goal="create an AI chat assistant with prompt history">💬 AI Chatbot</button>
+                <button class="sugg-chip" data-goal="build a modern music player with audio spectrum">🎵 Music Player</button>
                 <button class="sugg-chip" data-goal="build a crypto and stock market dashboard">📈 Crypto Dashboard</button>
+                <button class="sugg-chip" data-goal="create a retro arcade snake game">🎮 Snake Game</button>
               </div>
             </div>
           </div>
@@ -263,7 +273,10 @@
                 <h3 class="section-heading">ACTIVE SWARM GOALS</h3>
                 <p class="section-subtext">Live engineering pipelines and interactive apps in development</p>
               </div>
-              <button class="btn btn-sm btn-outline-primary" id="btn-open-goal-modal">+ Advanced Goal</button>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-sm btn-outline-primary" id="btn-view-active-tree">🌳 View Task Tree</button>
+                <button class="btn btn-sm btn-outline-secondary" id="btn-open-goal-modal">+ Advanced Goal</button>
+              </div>
             </div>
             <div id="active-goals-container" class="goals-grid"></div>
           </div>
@@ -272,10 +285,13 @@
           <div class="content-section">
             <div class="section-header">
               <div>
-                <h3 class="section-heading">INDUSTRY ECOSYSTEMS</h3>
-                <p class="section-subtext">Click any industry to explore its factories and live task queues</p>
+                <h3 class="section-heading">ACTIVE INDUSTRY ECOSYSTEMS</h3>
+                <p class="section-subtext">Major task branches currently allocated across the swarm</p>
               </div>
-              <button class="btn btn-sm btn-primary" id="btn-add-industry-main">+ New Industry</button>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-sm btn-outline-primary" id="btn-browse-suggestions-main">💡 Browse Suggestions</button>
+                <button class="btn btn-sm btn-primary" id="btn-add-industry-main">+ Custom Industry</button>
+              </div>
             </div>
             <div id="industries-grid" class="industries-grid"></div>
           </div>
@@ -283,19 +299,59 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════ -->
-        <!-- VIEW 2: INDUSTRIES & FACTORIES HUB             -->
+        <!-- VIEW: HIERARCHICAL TASK DECOMPOSITION TREE      -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div id="task-tree-view" class="view-panel">
+          <div class="view-header-bar">
+            <div>
+              <h2 class="view-title">🌳 Hierarchical Task Decomposition Tree</h2>
+              <p class="view-subtitle">Major Goal → Critical Task Branches (Industries) → Sub-Tasks (Factories) → AI Agent Execution</p>
+            </div>
+            <div class="header-actions">
+              <select id="tree-goal-selector" class="form-select form-select-sm" style="min-width:260px;">
+                <!-- Populated dynamically with active goals -->
+              </select>
+            </div>
+          </div>
+          
+          <div id="task-tree-container" class="task-tree-container">
+            <!-- Dynamic interactive task tree rendered here -->
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- VIEW 2: ACTIVE INDUSTRIES & FACTORIES HUB       -->
         <!-- ═══════════════════════════════════════════════ -->
         <div id="industries-hub-view" class="view-panel">
           <div class="view-header-bar">
             <div>
-              <h2 class="view-title">🏭 Industries & Production Factories</h2>
+              <h2 class="view-title">🏭 Active Industries & Production Factories</h2>
               <p class="view-subtitle">Manage, rename, and customize all specialized agent factories across your ecosystem</p>
             </div>
             <div class="header-actions">
-              <button class="btn btn-primary" id="btn-add-industry-hub">+ Add New Industry</button>
+              <button class="btn btn-outline-secondary" id="btn-view-suggestions-from-hub">💡 View Suggestions</button>
+              <button class="btn btn-primary" id="btn-add-industry-hub">+ Add Custom Industry</button>
             </div>
           </div>
           <div id="all-industries-factories-container" class="industries-hub-list"></div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- VIEW: SUGGESTED INDUSTRIES & FACTORIES CATALOG  -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div id="suggestions-view" class="view-panel">
+          <div class="view-header-bar">
+            <div>
+              <h2 class="view-title">💡 Suggested Industries & Factories Catalog</h2>
+              <p class="view-subtitle">Browse pre-engineered industrial templates and add them to your active swarm with 1 click</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-primary" id="btn-add-custom-industry-from-sugg">+ Create From Scratch</button>
+            </div>
+          </div>
+          <div id="suggestions-catalog-grid" class="suggestions-catalog-grid">
+            <!-- Populated dynamically from SUGGESTED_TEMPLATES -->
+          </div>
         </div>
 
         <!-- ═══════════════════════════════════════════════ -->
