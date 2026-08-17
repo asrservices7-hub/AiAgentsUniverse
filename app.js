@@ -354,11 +354,23 @@ class GoalDecomposer {
             totalFactories += industry.factories.length;
         }
 
+        // Calculate estimated agents dynamically based on app complexity
+        let baseAgentsPerFactory = 350;
+        if (/calc|calculator|math|timer|stopwatch|clock/i.test(goalLower)) {
+            baseAgentsPerFactory = 120; // Lightweight utility: ~400-800 total agents
+        } else if (/form|todo|survey|quiz|markdown|budget|kanban/i.test(goalLower)) {
+            baseAgentsPerFactory = 220; // Medium tool: ~1,500-2,500 total agents
+        } else if (/video|creator|editor|movie|youtube|smartwatch|watch|crypto|ecommerce|store|shop|game|ai|chat|bot/i.test(goalLower)) {
+            baseAgentsPerFactory = 450; // Heavy complex system: ~5,000-8,000 total agents
+        }
+
+        const estimatedAgentsNeeded = totalFactories * baseAgentsPerFactory;
+
         return {
             goal: goalText,
             industries: finalIndustries,
             totalFactories,
-            estimatedAgentsNeeded: totalFactories * 500
+            estimatedAgentsNeeded
         };
     }
 
@@ -1804,14 +1816,929 @@ class ArtifactGenerator {
         };
     }
 
-    // 🎬 VIDEO CREATOR STUDIO
+    // 🎬 VIDEO CREATOR STUDIO PRO
     static generateVideoCreator(goalText) {
-        const code = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Video Creator Studio</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh}.app{max-width:1100px;margin:0 auto;padding:20px}.header{background:#fff;border-radius:12px;padding:16px 24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center}.header h1{font-size:22px;font-weight:700;color:#0f172a}.toolbar{display:flex;gap:8px}.toolbar button{padding:8px 16px;border:1px solid #e2e8f0;background:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}.toolbar button:hover{background:#f1f5f9;border-color:#3b82f6;color:#3b82f6}.toolbar button.primary{background:#3b82f6;color:#fff;border-color:#3b82f6}.toolbar button.primary:hover{background:#2563eb}.main{display:grid;grid-template-columns:240px 1fr;gap:16px}.scenes-panel{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.scenes-panel h3{font-size:13px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}.scene-card{background:#f8fafc;border:2px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all .2s}.scene-card.active{border-color:#3b82f6;background:#eff6ff}.scene-card:hover{border-color:#93c5fd}.scene-label{font-size:12px;font-weight:600;color:#334155}.scene-dur{font-size:11px;color:#94a3b8;margin-top:4px}.canvas-area{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}.preview-canvas{width:100%;aspect-ratio:16/9;background:#0f172a;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.preview-canvas .scene-content{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#fff;padding:40px;text-align:center;transition:opacity .4s}.preview-canvas h2{font-size:32px;font-weight:800}.preview-canvas p{font-size:16px;opacity:.8}.controls{padding:16px;display:flex;align-items:center;gap:12px}.controls button{width:40px;height:40px;border-radius:50%;border:none;background:#3b82f6;color:#fff;font-size:16px;cursor:pointer;transition:all .2s}.controls button:hover{background:#2563eb;transform:scale(1.1)}.timeline{flex:1;height:6px;background:#e2e8f0;border-radius:3px;position:relative;cursor:pointer}.timeline-fill{height:100%;background:#3b82f6;border-radius:3px;transition:width .3s}.time-label{font-size:12px;font-weight:600;color:#64748b;font-family:monospace;min-width:80px;text-align:right}.add-scene{border:2px dashed #cbd5e1;border-radius:8px;padding:12px;text-align:center;font-size:12px;color:#94a3b8;cursor:pointer;transition:all .2s}.add-scene:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}.props-panel{margin-top:16px;background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.props-panel h3{font-size:13px;font-weight:700;color:#64748b;margin-bottom:12px;text-transform:uppercase}.prop-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}.prop-row label{font-size:12px;font-weight:600;color:#475569;min-width:80px}.prop-row input,.prop-row select{flex:1;padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;background:#f8fafc}.prop-row input:focus,.prop-row select:focus{outline:none;border-color:#3b82f6}</style></head><body><div class="app"><div class="header"><h1>🎬 Video Creator Studio</h1><div class="toolbar"><button onclick="addScene()">+ Add Scene</button><button onclick="exportProject()" class="primary">⬇ Export Project</button></div></div><div class="main"><div><div class="scenes-panel"><h3>Scenes Timeline</h3><div id="scenes-list"></div><div class="add-scene" onclick="addScene()">+ New Scene</div></div><div class="props-panel"><h3>Scene Properties</h3><div class="prop-row"><label>Title</label><input id="prop-title" oninput="updateProp('title',this.value)"></div><div class="prop-row"><label>Subtitle</label><input id="prop-subtitle" oninput="updateProp('subtitle',this.value)"></div><div class="prop-row"><label>Background</label><input type="color" id="prop-bg" value="#0f172a" oninput="updateProp('bg',this.value)"></div><div class="prop-row"><label>Duration (s)</label><input type="number" id="prop-duration" value="3" min="1" max="30" oninput="updateProp('duration',this.value)"></div><div class="prop-row"><label>Transition</label><select id="prop-transition" onchange="updateProp('transition',this.value)"><option value="fade">Fade</option><option value="slide">Slide Left</option><option value="zoom">Zoom In</option><option value="cut">Cut</option></select></div></div></div><div class="canvas-area"><div class="preview-canvas" id="preview"><div class="scene-content" id="scene-display"><h2 id="disp-title">Welcome</h2><p id="disp-subtitle">Your video starts here</p></div></div><div class="controls"><button id="play-btn" onclick="togglePlayback()">▶</button><div class="timeline" id="timeline" onclick="seekTimeline(event)"><div class="timeline-fill" id="timeline-fill"></div></div><span class="time-label" id="time-label">0:00 / 0:00</span></div></div></div></div><script>var scenes=[{id:1,title:"Welcome",subtitle:"Your video starts here",bg:"#0f172a",duration:3,transition:"fade"},{id:2,title:"Feature Highlight",subtitle:"Showcase your best work",bg:"#1e40af",duration:4,transition:"slide"},{id:3,title:"Call to Action",subtitle:"Get started today",bg:"#059669",duration:3,transition:"zoom"}];var currentScene=0;var playing=false;var playTimer=null;var elapsed=0;var nextId=4;function render(){var list=document.getElementById("scenes-list");list.innerHTML="";scenes.forEach(function(s,i){var div=document.createElement("div");div.className="scene-card"+(i===currentScene?" active":"");div.innerHTML='<div class="scene-label">Scene '+(i+1)+": "+s.title+'</div><div class="scene-dur">'+s.duration+'s \u2022 '+s.transition+"</div>";div.onclick=function(){selectScene(i)};list.appendChild(div)});showScene(currentScene)}function selectScene(i){currentScene=i;elapsed=0;showScene(i);updateProps()}function showScene(i){var s=scenes[i];if(!s)return;var prev=document.getElementById("preview");prev.style.background=s.bg;document.getElementById("disp-title").textContent=s.title;document.getElementById("disp-subtitle").textContent=s.subtitle;updateTimeline()}function updateProps(){var s=scenes[currentScene];if(!s)return;document.getElementById("prop-title").value=s.title;document.getElementById("prop-subtitle").value=s.subtitle;document.getElementById("prop-bg").value=s.bg;document.getElementById("prop-duration").value=s.duration;document.getElementById("prop-transition").value=s.transition}function updateProp(key,val){if(!scenes[currentScene])return;if(key==="duration")val=parseInt(val)||3;scenes[currentScene][key]=val;render();updateProps()}function addScene(){scenes.push({id:nextId++,title:"Scene "+(scenes.length+1),subtitle:"Add your content",bg:["#0f172a","#1e40af","#059669","#7c3aed","#dc2626","#d97706"][scenes.length%6],duration:3,transition:"fade"});currentScene=scenes.length-1;render();updateProps()}function togglePlayback(){playing=!playing;document.getElementById("play-btn").textContent=playing?"⏸":"▶";if(playing){playTimer=setInterval(function(){elapsed+=0.1;var s=scenes[currentScene];if(elapsed>=s.duration){elapsed=0;if(currentScene<scenes.length-1){currentScene++;showScene(currentScene)}else{playing=false;document.getElementById("play-btn").textContent="▶";currentScene=0;showScene(0);clearInterval(playTimer)}}updateTimeline()},100)}else{clearInterval(playTimer)}}function updateTimeline(){var s=scenes[currentScene];if(!s)return;var pct=(elapsed/s.duration)*100;document.getElementById("timeline-fill").style.width=Math.min(pct,100)+"%";var totalTime=scenes.reduce(function(a,b){return a+b.duration},0);var elapsedTotal=0;for(var i=0;i<currentScene;i++)elapsedTotal+=scenes[i].duration;elapsedTotal+=elapsed;var fmt=function(t){var m=Math.floor(t/60);var sec=Math.floor(t%60);return m+":"+(sec<10?"0":"")+sec};document.getElementById("time-label").textContent=fmt(elapsedTotal)+" / "+fmt(totalTime)}function seekTimeline(e){var rect=e.target.getBoundingClientRect();var pct=(e.clientX-rect.left)/rect.width;var s=scenes[currentScene];elapsed=pct*s.duration;updateTimeline()}function exportProject(){alert("Project exported! "+scenes.length+" scenes, "+scenes.reduce(function(a,b){return a+b.duration},0)+"s total duration.")}render();updateProps()</script></body></html>`;
-        return { title: 'Video Creator Studio', type: 'Video Creator', code, stages: [
-            { name: 'Scene Graph Architecture', agent: 'AGT-VIDEO-101', desc: 'Building scene timeline and transition graph.' },
-            { name: 'Canvas Renderer Pipeline', agent: 'AGT-RENDER-202', desc: 'Setting up preview rendering engine.' },
-            { name: 'Playback Control System', agent: 'AGT-MEDIA-303', desc: 'Implementing play/pause/seek controls.' },
-            { name: 'Export & Packaging', agent: 'NEXUS-BUILD-01', desc: 'Packaging final video project bundle.' }
+        const code = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Creator Studio Pro</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #0f172a; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    header { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { font-size: 24px; }
+    .brand-title { font-size: 18px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; }
+    .brand-badge { font-size: 11px; background: #eff6ff; color: #2563eb; padding: 3px 8px; border-radius: 12px; font-weight: 700; border: 1px solid #dbeafe; }
+
+    .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid #e2e8f0; background: #ffffff; color: #334155; cursor: pointer; transition: all 0.15s; }
+    .btn:hover { background: #f1f5f9; border-color: #cbd5e1; color: #0f172a; }
+    .btn-primary { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+    .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; color: #ffffff; }
+    .btn-success { background: #059669; color: #ffffff; border-color: #059669; }
+    .btn-success:hover { background: #047857; border-color: #047857; color: #ffffff; }
+    .btn-purple { background: #7c3aed; color: #ffffff; border-color: #7c3aed; }
+    .btn-purple:hover { background: #6d28d9; border-color: #6d28d9; color: #ffffff; }
+
+    .workspace { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px; flex: 1; max-width: 1440px; margin: 0 auto; width: 100%; }
+    
+    .sidebar { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; max-height: calc(100vh - 100px); }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .card-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+    /* Import tools */
+    .import-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .import-box { border: 1.5px dashed #cbd5e1; background: #f8fafc; border-radius: 8px; padding: 10px 8px; text-align: center; cursor: pointer; transition: all 0.15s; position: relative; }
+    .import-box:hover { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
+    .import-box input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .import-icon { font-size: 18px; margin-bottom: 4px; }
+    .import-label { font-size: 11px; font-weight: 700; }
+
+    /* Scenes List */
+    .scenes-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
+    .scene-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+    .scene-item.active { border-color: #2563eb; background: #eff6ff; }
+    .scene-item:hover { border-color: #93c5fd; }
+    .scene-info { display: flex; align-items: center; gap: 8px; overflow: hidden; }
+    .scene-thumb { width: 36px; height: 24px; border-radius: 4px; flex-shrink: 0; background: #0f172a; object-fit: cover; }
+    .scene-meta { overflow: hidden; }
+    .scene-title-text { font-size: 12px; font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+    .scene-sub-text { font-size: 10px; color: #64748b; }
+    .scene-actions { display: flex; align-items: center; gap: 4px; }
+    .icon-btn { border: none; background: transparent; padding: 4px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #94a3b8; transition: all 0.15s; }
+    .icon-btn:hover { background: #fee2e2; color: #dc2626; }
+
+    /* Audio section */
+    .audio-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; }
+    .audio-select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 12px; background: #f8fafc; margin-bottom: 8px; }
+
+    /* Properties */
+    .prop-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .prop-row label { font-size: 11px; font-weight: 700; color: #475569; }
+    .prop-row input, .prop-row select, .prop-row textarea { width: 100%; padding: 7px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 12px; background: #f8fafc; }
+    .prop-row input:focus, .prop-row select:focus, .prop-row textarea:focus { outline: none; border-color: #2563eb; background: #ffffff; }
+
+    /* Preview Canvas Area */
+    .preview-column { display: flex; flex-direction: column; gap: 12px; }
+    .canvas-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; }
+    .canvas-container { position: relative; width: 100%; aspect-ratio: 16/9; background: #090d16; display: flex; align-items: center; justify-content: center; }
+    #videoCanvas { width: 100%; height: 100%; object-fit: contain; }
+
+    /* Controls bar */
+    .player-controls { padding: 12px 16px; background: #ffffff; display: flex; align-items: center; gap: 12px; border-top: 1px solid #f1f5f9; }
+    .play-btn { width: 38px; height: 38px; border-radius: 50%; border: none; background: #2563eb; color: #ffffff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .play-btn:hover { background: #1d4ed8; transform: scale(1.05); }
+    .scrubber-wrap { flex: 1; position: relative; height: 8px; background: #e2e8f0; border-radius: 4px; cursor: pointer; }
+    .scrubber-fill { height: 100%; background: #2563eb; border-radius: 4px; width: 0%; pointer-events: none; transition: width 0.05s linear; }
+    .time-display { font-family: monospace; font-size: 12px; font-weight: 700; color: #64748b; min-width: 90px; text-align: right; }
+
+    /* Modal for Script to Video */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: #ffffff; border-radius: 16px; max-width: 600px; width: 100%; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .modal-title { font-size: 18px; font-weight: 800; color: #0f172a; }
+
+    @media (max-width: 900px) {
+      .workspace { grid-template-columns: 1fr; }
+      .sidebar { max-height: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span class="brand-icon">🎬</span>
+      <h1 class="brand-title">Video Creator Studio Pro</h1>
+      <span class="brand-badge">Multi-Track &amp; AI Script Engine</span>
+    </div>
+    <div class="top-actions">
+      <button class="btn btn-purple" onclick="openScriptModal()">✨ AI Script to Video</button>
+      <button class="btn" onclick="takeSnapshot()">📸 Snapshot (.png)</button>
+      <button class="btn btn-success" id="btn-download-video" onclick="downloadRenderedVideo()">⬇ Download Video (.webm)</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    
+    <!-- LEFT SIDEBAR: IMPORTS, SCENES & PROPERTIES -->
+    <div class="sidebar">
+      
+      <!-- IMPORT MEDIA -->
+      <div class="card">
+        <div class="card-title">
+          <span>📁 Import Options</span>
+        </div>
+        <div class="import-grid">
+          <div class="import-box">
+            <input type="file" id="input-import-images" multiple accept="image/*" onchange="handleImageUpload(event)">
+            <div class="import-icon">🖼️</div>
+            <div class="import-label">Import Photos</div>
+          </div>
+          <div class="import-box">
+            <input type="file" id="input-import-videos" multiple accept="video/*" onchange="handleVideoUpload(event)">
+            <div class="import-icon">🎥</div>
+            <div class="import-label">Import Video</div>
+          </div>
+          <div class="import-box">
+            <input type="file" id="input-import-audio" accept="audio/*" onchange="handleAudioUpload(event)">
+            <div class="import-icon">🎵</div>
+            <div class="import-label">Import Audio</div>
+          </div>
+          <div class="import-box" onclick="openScriptModal()">
+            <div class="import-icon">📜</div>
+            <div class="import-label">Import Script</div>
+          </div>
+        </div>
+        <button class="btn" style="width:100%;" onclick="addBlankScene()">+ Add Blank Scene</button>
+      </div>
+
+      <!-- SCENES TIMELINE LIST -->
+      <div class="card">
+        <div class="card-title">
+          <span>🎞️ Scenes (<span id="scenes-count">3</span>)</span>
+          <span style="font-size:11px;color:#64748b;" id="total-duration-label">10.0s</span>
+        </div>
+        <div class="scenes-list" id="scenes-list"></div>
+      </div>
+
+      <!-- AUDIO TRACK SETTINGS -->
+      <div class="card">
+        <div class="card-title">
+          <span>🎵 Audio Soundtrack</span>
+        </div>
+        <select class="audio-select" id="audio-theme-select" onchange="changeAudioTheme(this.value)">
+          <option value="cinematic">🎼 Ambient Cinematic Beat</option>
+          <option value="upbeat">⚡ Upbeat Electronic Groove</option>
+          <option value="chill">☕ Chill Lo-Fi Acoustic</option>
+          <option value="custom" id="custom-audio-opt" disabled>📁 Custom Uploaded Audio</option>
+          <option value="none">🔇 No Audio Track</option>
+        </select>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#64748b;">
+          <span>Volume</span>
+          <input type="range" id="audio-vol" min="0" max="1" step="0.05" value="0.7" style="width:120px;" oninput="setAudioVolume(this.value)">
+        </div>
+      </div>
+
+      <!-- SCENE PROPERTIES INSPECTOR -->
+      <div class="card">
+        <div class="card-title">
+          <span>⚙️ Selected Scene</span>
+          <button class="btn" style="padding:2px 8px;font-size:10px;" onclick="duplicateCurrentScene()">Duplicate</button>
+        </div>
+
+        <div class="prop-row">
+          <label>Title Heading</label>
+          <input type="text" id="prop-title" oninput="updateCurrentScene('title', this.value)">
+        </div>
+        <div class="prop-row">
+          <label>Subtitle / Subtext</label>
+          <input type="text" id="prop-subtitle" oninput="updateCurrentScene('subtitle', this.value)">
+        </div>
+        <div class="prop-row">
+          <label>Text Position</label>
+          <select id="prop-position" onchange="updateCurrentScene('position', this.value)">
+            <option value="center">Center Stage</option>
+            <option value="bottom">Lower Third Subtitle</option>
+            <option value="top">Top Header Banner</option>
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="prop-row">
+            <label>Duration (sec)</label>
+            <input type="number" id="prop-duration" min="1" max="30" step="0.5" value="3.5" oninput="updateCurrentScene('duration', parseFloat(this.value)||3)">
+          </div>
+          <div class="prop-row">
+            <label>Transition</label>
+            <select id="prop-transition" onchange="updateCurrentScene('transition', this.value)">
+              <option value="fade">Cross Fade</option>
+              <option value="slide-left">Slide Left</option>
+              <option value="slide-right">Slide Right</option>
+              <option value="zoom-in">Zoom In</option>
+              <option value="dissolve">Dissolve</option>
+            </select>
+          </div>
+        </div>
+        <div class="prop-row">
+          <label>Background Theme / Gradient</label>
+          <select id="prop-bg-preset" onchange="updateCurrentScene('bg', this.value)">
+            <option value="linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)">🌌 Deep Space Indigo</option>
+            <option value="linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)">🔮 Royal Purple Glow</option>
+            <option value="linear-gradient(135deg, #059669 0%, #0d9488 100%)">🌲 Emerald Teal</option>
+            <option value="linear-gradient(135deg, #ea580c 0%, #e11d48 100%)">🔥 Sunset Ember</option>
+            <option value="linear-gradient(135deg, #18181b 0%, #27272a 100%)">🖤 Sleek Dark Minimal</option>
+          </select>
+        </div>
+        <div class="prop-row">
+          <label>Motion &amp; Pan-Zoom</label>
+          <select id="prop-motion" onchange="updateCurrentScene('motion', this.value)">
+            <option value="zoom-in">Ken Burns: Zoom In</option>
+            <option value="zoom-out">Ken Burns: Zoom Out</option>
+            <option value="pan-right">Dynamic Pan</option>
+            <option value="none">Static Frame</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT MAIN: 16:9 PREVIEW CANVAS & TIMELINE -->
+    <div class="preview-column">
+      <div class="canvas-card">
+        <div class="canvas-container">
+          <canvas id="videoCanvas" width="960" height="540"></canvas>
+        </div>
+
+        <div class="player-controls">
+          <button class="play-btn" id="btn-play" onclick="togglePlayback()">▶</button>
+          <div class="scrubber-wrap" id="scrubber" onclick="handleScrub(event)">
+            <div class="scrubber-fill" id="scrubber-fill"></div>
+          </div>
+          <div class="time-display" id="time-display">00:00 / 00:10</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SCRIPT TO VIDEO MODAL -->
+  <div class="modal-overlay" id="script-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">✨ AI Script-to-Video Generator</h3>
+        <button class="icon-btn" style="font-size:18px;" onclick="closeScriptModal()">×</button>
+      </div>
+      <p style="font-size:13px;color:#64748b;margin-bottom:12px;">Paste your video script or prompt. The AI generator will break it into animated scenes with matching visuals, timing, and narration captions.</p>
+      
+      <textarea id="script-text" rows="6" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;line-height:1.6;margin-bottom:12px;" placeholder="Example:
+Scene 1: Introducing Agent Universe, the autonomous AI swarm.
+Scene 2: Over 1 Crore intelligent agents collaborating in real time.
+Scene 3: Build, test, and download production-ready apps in seconds.
+Scene 4: Launch your dream project today!"></textarea>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button class="btn" onclick="closeScriptModal()">Cancel</button>
+        <button class="btn btn-purple" onclick="generateFromScript()">✨ Generate Video Scenes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // VIDEO CREATOR ENGINE
+    var scenes = [
+      {
+        id: 1,
+        title: "Agent Universe",
+        subtitle: "The Autonomous Multi-Agent Swarm",
+        bg: "linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)",
+        duration: 3.5,
+        transition: "fade",
+        motion: "zoom-in",
+        position: "center",
+        mediaType: "none", // 'image', 'video', 'none'
+        mediaSrc: null,
+        mediaElem: null
+      },
+      {
+        id: 2,
+        title: "1 Crore AI Agents",
+        subtitle: "Decomposing tasks into specialized industries & factories",
+        bg: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+        duration: 3.5,
+        transition: "slide-left",
+        motion: "pan-right",
+        position: "bottom",
+        mediaType: "none",
+        mediaSrc: null,
+        mediaElem: null
+      },
+      {
+        id: 3,
+        title: "Instant Video Creation",
+        subtitle: "Import photos, merge audio, and download your final video",
+        bg: "linear-gradient(135deg, #059669 0%, #0d9488 100%)",
+        duration: 3.5,
+        transition: "zoom-in",
+        motion: "zoom-out",
+        position: "center",
+        mediaType: "none",
+        mediaSrc: null,
+        mediaElem: null
+      }
+    ];
+
+    var currentSceneIndex = 0;
+    var isPlaying = false;
+    var currentTime = 0;
+    var totalDuration = 10.5;
+    var animationFrameId = null;
+    var lastTimestamp = null;
+    var audioCtx = null;
+    var audioOscillator = null;
+    var audioGain = null;
+    var customAudioElem = null;
+    var audioTheme = "cinematic";
+    var audioVolume = 0.7;
+
+    var canvas = document.getElementById('videoCanvas');
+    var ctx = canvas.getContext('2d');
+
+    function init() {
+      recalcTotalDuration();
+      renderScenesList();
+      selectScene(0);
+      drawFrame(0);
+    }
+
+    function recalcTotalDuration() {
+      totalDuration = scenes.reduce(function(acc, s) { return acc + (s.duration || 3); }, 0);
+      document.getElementById('total-duration-label').textContent = totalDuration.toFixed(1) + 's';
+      document.getElementById('scenes-count').textContent = scenes.length;
+    }
+
+    function renderScenesList() {
+      var list = document.getElementById('scenes-list');
+      list.innerHTML = '';
+      scenes.forEach(function(s, idx) {
+        var item = document.createElement('div');
+        item.className = 'scene-item' + (idx === currentSceneIndex ? ' active' : '');
+        item.onclick = function() { selectScene(idx); };
+
+        var thumbStyle = s.mediaSrc 
+          ? 'background-image:url('+s.mediaSrc+');background-size:cover;background-position:center;' 
+          : 'background:' + s.bg;
+
+        item.innerHTML = 
+          '<div class="scene-info">' +
+            '<div class="scene-thumb" style="' + thumbStyle + '"></div>' +
+            '<div class="scene-meta">' +
+              '<div class="scene-title-text">' + (s.title || 'Untitled Scene') + '</div>' +
+              '<div class="scene-sub-text">' + s.duration + 's • ' + s.transition + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="scene-actions">' +
+            (idx > 0 ? '<button class="icon-btn" onclick="event.stopPropagation();moveScene('+idx+',-1)">▲</button>' : '') +
+            (idx < scenes.length - 1 ? '<button class="icon-btn" onclick="event.stopPropagation();moveScene('+idx+',1)">▼</button>' : '') +
+            '<button class="icon-btn" onclick="event.stopPropagation();deleteScene('+idx+')">×</button>' +
+          '</div>';
+        list.appendChild(item);
+      });
+    }
+
+    function selectScene(idx) {
+      if (idx < 0 || idx >= scenes.length) return;
+      currentSceneIndex = idx;
+      
+      // Compute start time for this scene
+      var st = 0;
+      for (var i = 0; i < idx; i++) {
+        st += scenes[i].duration;
+      }
+      currentTime = st;
+
+      renderScenesList();
+      populateProperties(scenes[idx]);
+      drawFrame(currentTime);
+      updateScrubberUI();
+    }
+
+    function populateProperties(s) {
+      if (!s) return;
+      document.getElementById('prop-title').value = s.title || '';
+      document.getElementById('prop-subtitle').value = s.subtitle || '';
+      document.getElementById('prop-position').value = s.position || 'center';
+      document.getElementById('prop-duration').value = s.duration || 3;
+      document.getElementById('prop-transition').value = s.transition || 'fade';
+      document.getElementById('prop-bg-preset').value = s.bg || 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)';
+      document.getElementById('prop-motion').value = s.motion || 'zoom-in';
+    }
+
+    function updateCurrentScene(key, val) {
+      var s = scenes[currentSceneIndex];
+      if (!s) return;
+      s[key] = val;
+      recalcTotalDuration();
+      renderScenesList();
+      drawFrame(currentTime);
+    }
+
+    function addBlankScene() {
+      var newScene = {
+        id: Date.now(),
+        title: "New Scene " + (scenes.length + 1),
+        subtitle: "Add your text and description",
+        bg: "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)",
+        duration: 3.5,
+        transition: "fade",
+        motion: "zoom-in",
+        position: "center",
+        mediaType: "none",
+        mediaSrc: null,
+        mediaElem: null
+      };
+      scenes.push(newScene);
+      recalcTotalDuration();
+      renderScenesList();
+      selectScene(scenes.length - 1);
+    }
+
+    function duplicateCurrentScene() {
+      var s = scenes[currentSceneIndex];
+      if (!s) return;
+      var copy = JSON.parse(JSON.stringify(s));
+      copy.id = Date.now();
+      copy.title += " (Copy)";
+      scenes.splice(currentSceneIndex + 1, 0, copy);
+      recalcTotalDuration();
+      renderScenesList();
+      selectScene(currentSceneIndex + 1);
+    }
+
+    function moveScene(idx, dir) {
+      var target = idx + dir;
+      if (target < 0 || target >= scenes.length) return;
+      var temp = scenes[idx];
+      scenes[idx] = scenes[target];
+      scenes[target] = temp;
+      selectScene(target);
+    }
+
+    function deleteScene(idx) {
+      if (scenes.length <= 1) {
+        alert("Video must contain at least 1 scene.");
+        return;
+      }
+      scenes.splice(idx, 1);
+      if (currentSceneIndex >= scenes.length) currentSceneIndex = scenes.length - 1;
+      recalcTotalDuration();
+      selectScene(currentSceneIndex);
+    }
+
+    // ==========================================
+    // IMPORT HANDLERS (PHOTOS, VIDEOS, AUDIO, SCRIPT)
+    // ==========================================
+
+    function handleImageUpload(e) {
+      var files = Array.from(e.target.files);
+      if (!files.length) return;
+
+      files.forEach(function(file, i) {
+        var reader = new FileReader();
+        reader.onload = function(evt) {
+          var img = new Image();
+          img.src = evt.target.result;
+          img.onload = function() {
+            var sc = {
+              id: Date.now() + i,
+              title: file.name.replace(/\\.[^/.]+$/, ""),
+              subtitle: "Uploaded Photo (" + img.width + "x" + img.height + ")",
+              bg: "#000000",
+              duration: 4.0,
+              transition: "fade",
+              motion: "zoom-in",
+              position: "bottom",
+              mediaType: "image",
+              mediaSrc: evt.target.result,
+              mediaElem: img
+            };
+            scenes.push(sc);
+            recalcTotalDuration();
+            renderScenesList();
+            selectScene(scenes.length - 1);
+          };
+        };
+        reader.readAsDataURL(file);
+      });
+      e.target.value = '';
+    }
+
+    function handleVideoUpload(e) {
+      var files = Array.from(e.target.files);
+      if (!files.length) return;
+
+      files.forEach(function(file, i) {
+        var url = URL.createObjectURL(file);
+        var vid = document.createElement('video');
+        vid.src = url;
+        vid.muted = true;
+        vid.onloadedmetadata = function() {
+          var dur = Math.min(Math.max(vid.duration || 4, 2), 20);
+          var sc = {
+            id: Date.now() + i,
+            title: file.name.replace(/\\.[^/.]+$/, ""),
+            subtitle: "Video Clip (" + Math.round(dur) + "s)",
+            bg: "#000000",
+            duration: Math.round(dur * 10) / 10,
+            transition: "fade",
+            motion: "none",
+            position: "bottom",
+            mediaType: "video",
+            mediaSrc: url,
+            mediaElem: vid
+          };
+          scenes.push(sc);
+          recalcTotalDuration();
+          renderScenesList();
+          selectScene(scenes.length - 1);
+        };
+      });
+      e.target.value = '';
+    }
+
+    function handleAudioUpload(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+
+      var url = URL.createObjectURL(file);
+      customAudioElem = new Audio(url);
+      customAudioElem.loop = true;
+
+      var opt = document.getElementById('custom-audio-opt');
+      opt.disabled = false;
+      opt.textContent = "📁 " + file.name.substring(0, 24);
+      document.getElementById('audio-theme-select').value = "custom";
+      audioTheme = "custom";
+      alert("Audio track loaded: " + file.name);
+    }
+
+    function openScriptModal() {
+      document.getElementById('script-modal').classList.add('open');
+    }
+    function closeScriptModal() {
+      document.getElementById('script-modal').classList.remove('open');
+    }
+
+    function generateFromScript() {
+      var text = document.getElementById('script-text').value.trim();
+      if (!text) {
+        alert("Please enter a script or prompt.");
+        return;
+      }
+
+      var lines = text.split(/\\n+/).filter(function(l) { return l.trim().length > 0; });
+      if (lines.length === 0) return;
+
+      var gradients = [
+        "linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)",
+        "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+        "linear-gradient(135deg, #059669 0%, #0d9488 100%)",
+        "linear-gradient(135deg, #ea580c 0%, #e11d48 100%)",
+        "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)"
+      ];
+      var transitions = ["fade", "slide-left", "zoom-in", "dissolve"];
+      var motions = ["zoom-in", "zoom-out", "pan-right"];
+
+      scenes = lines.map(function(line, i) {
+        var cleanLine = line.replace(/^(Scene\\s*\\d+[:\\-]?\\s*)/i, '').trim();
+        var parts = cleanLine.split(/[:–—\\-]/);
+        var title = parts[0] ? parts[0].trim() : "Scene " + (i + 1);
+        var subtitle = parts[1] ? parts.slice(1).join(" - ").trim() : "Part of your AI generated story";
+
+        return {
+          id: Date.now() + i,
+          title: title,
+          subtitle: subtitle,
+          bg: gradients[i % gradients.length],
+          duration: 3.5,
+          transition: transitions[i % transitions.length],
+          motion: motions[i % motions.length],
+          position: i % 2 === 0 ? "center" : "bottom",
+          mediaType: "none",
+          mediaSrc: null,
+          mediaElem: null
+        };
+      });
+
+      recalcTotalDuration();
+      renderScenesList();
+      selectScene(0);
+      closeScriptModal();
+    }
+
+    // ==========================================
+    // AUDIO SYNTHESIS & PLAYBACK
+    // ==========================================
+
+    function changeAudioTheme(theme) {
+      audioTheme = theme;
+      if (isPlaying) {
+        startAudioTrack();
+      }
+    }
+
+    function setAudioVolume(vol) {
+      audioVolume = parseFloat(vol);
+      if (audioGain) audioGain.gain.value = audioVolume;
+      if (customAudioElem) customAudioElem.volume = audioVolume;
+    }
+
+    function startAudioTrack() {
+      if (audioTheme === "none") {
+        stopAudioTrack();
+        return;
+      }
+
+      if (audioTheme === "custom" && customAudioElem) {
+        customAudioElem.currentTime = currentTime % (customAudioElem.duration || 10);
+        customAudioElem.volume = audioVolume;
+        customAudioElem.play().catch(function(){});
+        return;
+      }
+
+      // Web Audio Synthesizer Beat
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        stopAudioTrack();
+
+        audioGain = audioCtx.createGain();
+        audioGain.gain.setValueAtTime(audioVolume * 0.15, audioCtx.currentTime);
+        audioGain.connect(audioCtx.destination);
+
+        var osc = audioCtx.createOscillator();
+        var freqs = { cinematic: 110, upbeat: 220, chill: 164 };
+        osc.type = audioTheme === "cinematic" ? "sine" : (audioTheme === "upbeat" ? "sawtooth" : "triangle");
+        osc.frequency.setValueAtTime(freqs[audioTheme] || 150, audioCtx.currentTime);
+
+        osc.connect(audioGain);
+        osc.start();
+        audioOscillator = osc;
+      } catch (e) {}
+    }
+
+    function stopAudioTrack() {
+      if (audioOscillator) {
+        try { audioOscillator.stop(); audioOscillator.disconnect(); } catch (e) {}
+        audioOscillator = null;
+      }
+      if (customAudioElem) {
+        customAudioElem.pause();
+      }
+    }
+
+    // ==========================================
+    // CANVAS RENDERING ENGINE
+    // ==========================================
+
+    function drawFrame(timeSec) {
+      var w = canvas.width;
+      var h = canvas.height;
+
+      // Find active scene and elapsed time in scene
+      var accum = 0;
+      var activeIdx = 0;
+      var sceneElapsed = 0;
+
+      for (var i = 0; i < scenes.length; i++) {
+        var dur = scenes[i].duration;
+        if (timeSec >= accum && timeSec < accum + dur) {
+          activeIdx = i;
+          sceneElapsed = timeSec - accum;
+          break;
+        }
+        accum += dur;
+      }
+
+      if (timeSec >= totalDuration) {
+        activeIdx = scenes.length - 1;
+        sceneElapsed = scenes[activeIdx].duration;
+      }
+
+      var scene = scenes[activeIdx];
+      if (!scene) return;
+
+      var progress = sceneElapsed / scene.duration; // 0 to 1
+
+      // 1. Draw Background / Media
+      ctx.save();
+      if (scene.mediaType === "image" && scene.mediaElem) {
+        // Draw image with Ken Burns pan/zoom
+        var scale = 1.0;
+        if (scene.motion === "zoom-in") scale = 1.0 + progress * 0.15;
+        if (scene.motion === "zoom-out") scale = 1.15 - progress * 0.15;
+
+        ctx.translate(w / 2, h / 2);
+        ctx.scale(scale, scale);
+        ctx.drawImage(scene.mediaElem, -w / 2, -h / 2, w, h);
+        ctx.restore();
+
+        // Dark overlay gradient for text legibility
+        var overlay = ctx.createLinearGradient(0, 0, 0, h);
+        overlay.addColorStop(0, 'rgba(0,0,0,0.3)');
+        overlay.addColorStop(1, 'rgba(0,0,0,0.7)');
+        ctx.fillStyle = overlay;
+        ctx.fillRect(0, 0, w, h);
+      } else if (scene.mediaType === "video" && scene.mediaElem) {
+        // Draw video frame
+        ctx.drawImage(scene.mediaElem, 0, 0, w, h);
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+        ctx.fillRect(0, 0, w, h);
+      } else {
+        // Draw Gradient Background
+        var bgGrad = ctx.createLinearGradient(0, 0, w, h);
+        if (scene.bg.includes('4f46e5')) {
+          bgGrad.addColorStop(0, '#4f46e5'); bgGrad.addColorStop(1, '#7c3aed');
+        } else if (scene.bg.includes('059669')) {
+          bgGrad.addColorStop(0, '#059669'); bgGrad.addColorStop(1, '#0d9488');
+        } else if (scene.bg.includes('ea580c')) {
+          bgGrad.addColorStop(0, '#ea580c'); bgGrad.addColorStop(1, '#e11d48');
+        } else if (scene.bg.includes('1e1b4b')) {
+          bgGrad.addColorStop(0, '#1e1b4b'); bgGrad.addColorStop(1, '#312e81');
+        } else {
+          bgGrad.addColorStop(0, '#0f172a'); bgGrad.addColorStop(1, '#1e3a8a');
+        }
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // 2. Animated particles / subtle glow
+      ctx.fillStyle = 'rgba(255,255,255,0.03)';
+      for (var p = 0; p < 8; p++) {
+        var px = ((p * 140 + timeSec * 30) % w);
+        var py = ((p * 80 + Math.sin(timeSec + p) * 40) % h);
+        ctx.beginPath();
+        ctx.arc(px, py, 40 + p * 10, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 3. Audio spectrum equalizer visualization at bottom
+      if (audioTheme !== "none") {
+        ctx.fillStyle = 'rgba(255,255,255,0.25)';
+        var numBars = 32;
+        var barW = w / numBars;
+        for (var b = 0; b < numBars; b++) {
+          var barH = Math.abs(Math.sin(timeSec * 6 + b * 0.4)) * 30 + 4;
+          ctx.fillRect(b * barW + 2, h - barH - 8, barW - 4, barH);
+        }
+      }
+
+      // 4. Render Typography (Title & Subtitle)
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      var textAlpha = Math.min(progress * 4, 1.0); // Fade in text quickly
+      if (progress > 0.85) textAlpha = Math.max(0, (1.0 - progress) / 0.15); // Fade out at end
+
+      ctx.fillStyle = 'rgba(255,255,255,' + textAlpha + ')';
+
+      var posY = h / 2;
+      if (scene.position === "bottom") posY = h * 0.75;
+      if (scene.position === "top") posY = h * 0.25;
+
+      // Title
+      ctx.font = 'bold 42px system-ui, sans-serif';
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 12;
+      ctx.fillText(scene.title || '', w / 2, posY - 20);
+
+      // Subtitle
+      ctx.font = '500 20px system-ui, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,' + (textAlpha * 0.85) + ')';
+      ctx.fillText(scene.subtitle || '', w / 2, posY + 28);
+      ctx.shadowBlur = 0;
+    }
+
+    // ==========================================
+    // PLAYBACK & SCRUBBING LOOP
+    // ==========================================
+
+    function togglePlayback() {
+      isPlaying = !isPlaying;
+      document.getElementById('btn-play').textContent = isPlaying ? '⏸' : '▶';
+
+      if (isPlaying) {
+        if (currentTime >= totalDuration) currentTime = 0;
+        lastTimestamp = performance.now();
+        startAudioTrack();
+        animationFrameId = requestAnimationFrame(playbackLoop);
+      } else {
+        stopAudioTrack();
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      }
+    }
+
+    function playbackLoop(timestamp) {
+      if (!isPlaying) return;
+
+      var delta = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
+
+      currentTime += delta;
+
+      if (currentTime >= totalDuration) {
+        currentTime = totalDuration;
+        drawFrame(currentTime);
+        updateScrubberUI();
+        togglePlayback();
+        return;
+      }
+
+      drawFrame(currentTime);
+      updateScrubberUI();
+      animationFrameId = requestAnimationFrame(playbackLoop);
+    }
+
+    function handleScrub(e) {
+      var rect = e.currentTarget.getBoundingClientRect();
+      var pct = (e.clientX - rect.left) / rect.width;
+      currentTime = Math.max(0, Math.min(totalDuration, pct * totalDuration));
+      drawFrame(currentTime);
+      updateScrubberUI();
+    }
+
+    function updateScrubberUI() {
+      var pct = (currentTime / totalDuration) * 100;
+      document.getElementById('scrubber-fill').style.width = Math.min(pct, 100) + '%';
+
+      var fmt = function(t) {
+        var m = Math.floor(t / 60);
+        var s = Math.floor(t % 60);
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+      };
+      document.getElementById('time-display').textContent = fmt(currentTime) + ' / ' + fmt(totalDuration);
+    }
+
+    function takeSnapshot() {
+      var link = document.createElement('a');
+      link.download = 'video-frame-' + Math.round(currentTime) + 's.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // ==========================================
+    // VIDEO EXPORT & MEDIA RECORDER DOWNLOAD
+    // ==========================================
+
+    function downloadRenderedVideo() {
+      var btn = document.getElementById('btn-download-video');
+      btn.disabled = true;
+      btn.textContent = '⏳ Rendering Video...';
+
+      // Setup MediaRecorder from Canvas Stream
+      try {
+        var stream = canvas.captureStream(30);
+        var chunks = [];
+        var recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+
+        recorder.ondataavailable = function(e) {
+          if (e.data.size > 0) chunks.push(e.data);
+        };
+
+        recorder.onstop = function() {
+          var blob = new Blob(chunks, { type: 'video/webm' });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = 'agent-universe-video.webm';
+          a.click();
+
+          btn.disabled = false;
+          btn.textContent = '⬇ Download Video (.webm)';
+          alert("🎉 Video Render Complete! Your video has been downloaded to your computer.");
+        };
+
+        // Play from start and record
+        currentTime = 0;
+        recorder.start();
+        isPlaying = true;
+        lastTimestamp = performance.now();
+
+        var recordInterval = setInterval(function() {
+          currentTime += 0.033; // 30 fps
+          drawFrame(currentTime);
+          updateScrubberUI();
+
+          if (currentTime >= totalDuration) {
+            clearInterval(recordInterval);
+            recorder.stop();
+            isPlaying = false;
+            document.getElementById('btn-play').textContent = '▶';
+          }
+        }, 33);
+
+      } catch (err) {
+        alert("MediaRecorder error: " + err.message + ". Downloading frame snapshot instead.");
+        takeSnapshot();
+        btn.disabled = false;
+        btn.textContent = '⬇ Download Video (.webm)';
+      }
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>`;
+        return { title: 'Video Creator Studio Pro', type: 'Video Creator', code, stages: [
+            { name: 'Multi-Track Timeline Architecture', agent: 'AGT-VIDEO-101', desc: 'Building multi-scene timeline graph and import pipelines.' },
+            { name: 'Canvas & Web Audio Engine', agent: 'AGT-RENDER-202', desc: 'Wiring 16:9 canvas renderer, Ken Burns motion, and soundtrack synthesizer.' },
+            { name: 'AI Script-to-Video Parser', agent: 'AGT-AI-303', desc: 'Configuring natural language script scene generation.' },
+            { name: 'MediaRecorder Export Pipeline', agent: 'NEXUS-BUILD-01', desc: 'Packaging standalone video encoder and download pipeline.' }
         ]};
     }
 
@@ -2014,8 +2941,9 @@ class Factory {
     }
 
     tick(deltaMs, simSpeed) {
-        // Generate new tasks if queue is low
-        if (this.taskQueue.length < this.agents.length * 2 && Math.random() < (0.15 * simSpeed)) {
+        const hasActiveGoal = AgentUniverse.instance && AgentUniverse.instance.goals.some(g => g.active);
+        // Generate new tasks only if there is an active goal and queue is low
+        if (hasActiveGoal && this.agents.length > 0 && this.taskQueue.length < this.agents.length * 2 && Math.random() < (0.15 * simSpeed)) {
             this.generateTask();
         }
 
@@ -2208,11 +3136,12 @@ class Goal {
             AgentUniverse.instance?.eventLog?.log('task', `[${stage.agent}] Stage ${currentStageInfo.index + 1}/${this.stages.length}: ${stage.name} for "${this.text}"`);
         }
         
-        if (this.progress >= 100) {
+        if (this.progress >= 100 && this.active) {
             this.progress = 100;
             this.active = false;
             this.completedAt = Date.now();
             AgentUniverse.instance?.eventLog?.log('task', `🎉 GOAL COMPLETE: "${this.text}" — Interactive App ready to play!`);
+            AgentUniverse.instance?.onGoalCompleted(this);
         }
     }
 }
@@ -2408,10 +3337,11 @@ class AgentUniverse {
                     industry.factories.push(factory);
                 }
 
-                // Deploy agents from bench pool
-                const agentQuota = config.mode === 'manual' && config.manualAgentCount > 0 
-                    ? Math.max(10, Math.floor(config.manualAgentCount / Math.max(1, decomp.totalFactories)))
-                    : randomInt(800, 2000);
+                // Deploy agents from bench pool dynamically sized by app complexity
+                const totalSwarmNeeded = config.mode === 'manual' && config.manualAgentCount > 0 
+                    ? config.manualAgentCount 
+                    : (decomp.estimatedAgentsNeeded || (decomp.totalFactories * 350));
+                const agentQuota = Math.max(10, Math.floor(totalSwarmNeeded / Math.max(1, decomp.totalFactories)));
 
                 this.bench.deploy(agentQuota, factory.id);
                 totalDeployed += agentQuota;
@@ -2431,6 +3361,28 @@ class AgentUniverse {
         if (this.renderer) this.renderer.populateFactoryDropdowns();
         
         return goal;
+    }
+
+    onGoalCompleted(goal) {
+        const hasOtherActiveGoal = this.goals.some(g => g.id !== goal.id && g.active);
+        if (!hasOtherActiveGoal) {
+            let totalFreed = 0;
+            this.industries.forEach(ind => {
+                ind.factories.forEach(fac => {
+                    totalFreed += fac.agents.length;
+                    fac.agents = [];
+                    fac.activeTasks = [];
+                    fac.taskQueue = [];
+                });
+            });
+            // Clear pending deploy/recall queues so no further workers are spawned
+            this.bench.deployQueue = [];
+            this.bench.recallQueue = [];
+            this.bench.count = SIM_CONFIG.maxBenchAgents; // Return 100% of agents to Reserve Bench
+
+            if (this.convergenceMode) this.exitConvergenceMode();
+            this.eventLog.log('alert', `✅ Goal accomplished! All agents stood down & returned to Reserve Bench (1,00,00,000 ready). Swarm is idle.`);
+        }
     }
 
     removeGoal(goalId) {
