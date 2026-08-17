@@ -76,114 +76,374 @@ const SIM_CONFIG = {
     factoryInitialAgentsMax: 120
 };
 
-const INITIAL_INDUSTRIES = [
-    {
-        id: 'ind-tech',
-        name: 'Technology & AI',
-        icon: '⚡',
-        color: '#2563eb',
-        description: 'Autonomous software engineering, cloud infrastructure, neural models, and cybersecurity.',
-        factories: [
-            { name: 'API Development Factory', goal: 'Build and maintain 500 production API endpoints' },
-            { name: 'Security Audit Factory', goal: 'Complete security audits of all cloud microservices' },
-            { name: 'ML Pipeline Factory', goal: 'Train and deploy deep learning models to production' },
-            { name: 'DevOps Automation Factory', goal: 'Achieve 99.999% uptime with autonomous auto-healing' }
-        ]
-    },
-    {
-        id: 'ind-health',
-        name: 'Healthcare & Biotech',
-        icon: '🏥',
-        color: '#059669',
-        description: 'Biomedical research, genomic analysis, clinical trial screening, and diagnostic imaging.',
-        factories: [
-            { name: 'Medical Records Factory', goal: 'Digitize and validate 1M patient electronic records' },
-            { name: 'Drug Interaction Checker', goal: 'Synthesize bioactivity and contraindication databases' },
-            { name: 'Diagnostic Imaging Factory', goal: 'Process radiology scans with automated lesion analysis' },
-            { name: 'Clinical Trial Matching', goal: 'Match 50,000 eligible patients to active cancer trials' }
-        ]
-    },
-    {
-        id: 'ind-fin',
-        name: 'Finance & Fintech',
-        icon: '📊',
-        color: '#d97706',
-        description: 'Quantitative analytics, algorithmic risk assessment, fraud surveillance, and regulatory compliance.',
-        factories: [
-            { name: 'Fraud Detection Factory', goal: 'Monitor 10M transactions in real-time for anomalies' },
-            { name: 'Portfolio Risk Assessment', goal: 'Execute Monte Carlo stress testing for capital reserves' },
-            { name: 'Compliance Engine Factory', goal: 'Ensure 100% regulatory reporting across 15 jurisdictions' }
-        ]
-    },
-    {
-        id: 'ind-mfg',
-        name: 'Manufacturing & Robotics',
-        icon: '🏭',
-        color: '#7c3aed',
-        description: 'Precision engineering, industrial IoT monitoring, predictive maintenance, and quality control.',
-        factories: [
-            { name: 'Quality Control Factory', goal: 'Maintain 99.99% defect-free automated assembly' },
-            { name: 'Supply Chain Optimizer', goal: 'Optimize multi-tier vendor logistics and lead times' },
-            { name: 'Predictive Maintenance Factory', goal: 'Predict equipment wear 48 hours prior to failure' }
-        ]
-    },
-    {
-        id: 'ind-energy',
-        name: 'Clean Energy & Grid',
-        icon: '🔋',
-        color: '#0284c7',
-        description: 'Renewable energy integration, grid frequency stabilization, and carbon emission telemetry.',
-        factories: [
-            { name: 'Grid Balancing Factory', goal: 'Balance 50GW multi-source power grid in real-time' },
-            { name: 'Emissions Monitoring Factory', goal: 'Track and verify carbon offset tokens across facilities' },
-            { name: 'Renewable Integration Factory', goal: 'Integrate 10GW solar and offshore wind capacity' }
-        ]
-    },
-    {
-        id: 'ind-logistics',
-        name: 'Logistics & Supply',
-        icon: '🚛',
-        color: '#e11d48',
-        description: 'Fleet routing, automated fulfillment centers, customs documentation, and last-mile dispatch.',
-        factories: [
-            { name: 'Route Optimization Factory', goal: 'Optimize 50,000 daily delivery routes dynamically' },
-            { name: 'Warehouse Automation Factory', goal: 'Manage 5M SKUs with automated pick-and-pack routing' },
-            { name: 'Fleet Telemetry Factory', goal: 'Monitor vehicle diagnostics and predictive servicing' }
-        ]
-    }
+// Suggested industry/factory templates (NOT auto-deployed — shown as suggestions for users)
+const SUGGESTED_TEMPLATES = [
+    { name: 'Technology & AI', icon: '⚡', color: '#2563eb', desc: 'Software engineering, cloud infra, neural models', factories: ['API Development', 'Security Audit', 'ML Pipeline', 'DevOps Automation'] },
+    { name: 'Healthcare & Biotech', icon: '🏥', color: '#059669', desc: 'Biomedical research, genomic analysis, diagnostics', factories: ['Medical Records', 'Drug Interaction Checker', 'Diagnostic Imaging', 'Clinical Trial Matching'] },
+    { name: 'Finance & Fintech', icon: '📊', color: '#d97706', desc: 'Quantitative analytics, fraud detection, compliance', factories: ['Fraud Detection', 'Portfolio Risk', 'Compliance Engine'] },
+    { name: 'Manufacturing & Robotics', icon: '🏭', color: '#7c3aed', desc: 'Precision engineering, IoT, predictive maintenance', factories: ['Quality Control', 'Supply Chain Optimizer', 'Predictive Maintenance'] },
+    { name: 'Clean Energy & Grid', icon: '🔋', color: '#0284c7', desc: 'Renewable integration, grid stabilization, carbon telemetry', factories: ['Grid Balancing', 'Emissions Monitoring', 'Renewable Integration'] },
+    { name: 'Logistics & Supply', icon: '🚛', color: '#e11d48', desc: 'Fleet routing, automated fulfillment, last-mile dispatch', factories: ['Route Optimization', 'Warehouse Automation', 'Fleet Telemetry'] },
+    { name: 'Education & Learning', icon: '📚', color: '#2563eb', desc: 'Course creation, assessment, interactive learning', factories: ['Lesson Creator', 'Assessment Generator', 'Progress Tracker'] },
+    { name: 'Social & Community', icon: '👥', color: '#ec4899', desc: 'User profiles, content feeds, engagement', factories: ['Profile Manager', 'Content Feed', 'Engagement Tracker'] },
 ];
+
+// ==========================================
+// GOAL DECOMPOSER — INTELLIGENT TASK TREE ENGINE
+// ==========================================
+
+class GoalDecomposer {
+    static DECOMPOSITION_RULES = [
+        {
+            name: "Web/Frontend",
+            keywords: ["website", "web", "page", "landing", "frontend", "html", "css", "ui", "ux", "responsive", "layout", "portfolio", "blog"],
+            weight: 1,
+            industries: [
+                { name: 'Frontend Design & Architecture', icon: '🎨', color: '#3b82f6', description: 'Handles frontend UI and UX', factories: [
+                    { name: 'UI/UX Layout Designer', goal: 'Design the overall layout and user experience' },
+                    { name: 'Component Builder', goal: 'Build reusable UI components' },
+                    { name: 'Responsive Adaptation Engine', goal: 'Ensure responsive design across all devices' },
+                    { name: 'Asset Pipeline', goal: 'Manage and optimize images, fonts, and icons' }
+                ]},
+                { name: 'Deployment & Infrastructure', icon: '🚀', color: '#8b5cf6', description: 'Manages build and hosting configurations', factories: [
+                    { name: 'Build & Bundle Optimizer', goal: 'Optimize application bundles for production' },
+                    { name: 'Hosting Configuration', goal: 'Setup and configure hosting environments' },
+                    { name: 'Performance Auditor', goal: 'Audit and improve load times and runtime performance' }
+                ]}
+            ]
+        },
+        {
+            name: "App/Mobile",
+            keywords: ["app", "mobile", "android", "ios", "application", "native", "react native", "flutter"],
+            weight: 1,
+            industries: [
+                { name: 'App Architecture', icon: '📱', color: '#06b6d4', description: 'Core application structure and routing', factories: [
+                    { name: 'Navigation & Routing Engine', goal: 'Handle screens and transitions' },
+                    { name: 'Screen Builder', goal: 'Assemble mobile views and components' },
+                    { name: 'State Management Core', goal: 'Manage global app state' },
+                    { name: 'Data Persistence Layer', goal: 'Handle local caching and storage' }
+                ]},
+                { name: 'Platform Adaptation', icon: '🔧', color: '#64748b', description: 'Handles cross-platform native logic', factories: [
+                    { name: 'Device Compatibility Tester', goal: 'Ensure device compatibility' },
+                    { name: 'Platform API Bridge', goal: 'Connect with native device features' }
+                ]}
+            ]
+        },
+        {
+            name: "Video/Media",
+            keywords: ["video", "youtube", "stream", "media", "film", "animation", "movie", "clip", "upload", "creator"],
+            weight: 1,
+            industries: [
+                { name: 'Content Production', icon: '🎬', color: '#f97316', description: 'Handles content creation pipeline', factories: [
+                    { name: 'Script & Storyboard Generator', goal: 'Generate scripts from prompts' },
+                    { name: 'Video Rendering Pipeline', goal: 'Render video frames and scenes' },
+                    { name: 'Audio Mixing Engine', goal: 'Process and mix audio tracks' },
+                    { name: 'Transition & Effects Processor', goal: 'Apply visual effects and transitions' }
+                ]},
+                { name: 'Distribution & Platform', icon: '📡', color: '#ec4899', description: 'Manages publishing and delivery', factories: [
+                    { name: 'Platform Upload Handler', goal: 'Upload content to various platforms' },
+                    { name: 'Schedule & Publish Automator', goal: 'Automate content release scheduling' },
+                    { name: 'Analytics Tracker', goal: 'Track views and engagement metrics' }
+                ]}
+            ]
+        },
+        {
+            name: "Email/Communication",
+            keywords: ["email", "gmail", "mail", "notification", "message", "sms", "alert", "send", "newsletter"],
+            weight: 1,
+            industries: [
+                { name: 'Communication Engine', icon: '📧', color: '#0891b2', description: 'Handles message formatting and sending', factories: [
+                    { name: 'Template Designer', goal: 'Design responsive email templates' },
+                    { name: 'Message Composer', goal: 'Compose message content dynamically' },
+                    { name: 'SMTP/API Handler', goal: 'Send communications via SMTP or API' },
+                    { name: 'Recipient Manager', goal: 'Manage user segments and lists' }
+                ]},
+                { name: 'Scheduling & Automation', icon: '⏰', color: '#a855f7', description: 'Manages timing and triggers', factories: [
+                    { name: 'Cron Scheduler', goal: 'Schedule recurring tasks' },
+                    { name: 'Trigger Rules Engine', goal: 'Fire events based on user actions' },
+                    { name: 'Delivery Tracker', goal: 'Track bounces, opens, and clicks' }
+                ]}
+            ]
+        },
+        {
+            name: "Game/Interactive",
+            keywords: ["game", "play", "arcade", "puzzle", "quiz", "interactive", "score", "level"],
+            weight: 1,
+            industries: [
+                { name: 'Game Engine & Logic', icon: '🎮', color: '#ef4444', description: 'Handles game logic and physics', factories: [
+                    { name: 'Physics & Collision Engine', goal: 'Manage collisions and gravity' },
+                    { name: 'Game Loop Architect', goal: 'Control the main render loop' },
+                    { name: 'Score & State Manager', goal: 'Track player progression' },
+                    { name: 'Level Designer', goal: 'Generate level layouts' }
+                ]},
+                { name: 'Graphics & Audio', icon: '🎨', color: '#f59e0b', description: 'Handles rendering and sound', factories: [
+                    { name: 'Sprite & Canvas Renderer', goal: 'Draw objects on the screen' },
+                    { name: 'Sound Effects Engine', goal: 'Play background music and SFX' },
+                    { name: 'Animation Sequencer', goal: 'Sequence frame-by-frame animations' }
+                ]}
+            ]
+        },
+        {
+            name: "Data/Analytics",
+            keywords: ["data", "analytics", "dashboard", "chart", "graph", "report", "monitor", "metrics", "track", "statistics"],
+            weight: 1,
+            industries: [
+                { name: 'Data Pipeline', icon: '📊', color: '#0d9488', description: 'Manages data flow and processing', factories: [
+                    { name: 'Data Ingestion Engine', goal: 'Ingest data from external sources' },
+                    { name: 'Transform & Clean Processor', goal: 'Clean and format raw data' },
+                    { name: 'Aggregation Engine', goal: 'Aggregate metrics and summaries' }
+                ]},
+                { name: 'Visualization & Reporting', icon: '📈', color: '#2563eb', description: 'Renders charts and dashboards', factories: [
+                    { name: 'Chart & Graph Builder', goal: 'Render data visualizations' },
+                    { name: 'Report Generator', goal: 'Generate PDF or Excel reports' },
+                    { name: 'Alert Rules Engine', goal: 'Trigger alerts on data thresholds' }
+                ]}
+            ]
+        },
+        {
+            name: "E-commerce/Business",
+            keywords: ["shop", "store", "product", "cart", "checkout", "payment", "order", "ecommerce", "buy", "sell", "price", "invoice"],
+            weight: 1,
+            industries: [
+                { name: 'Product & Catalog', icon: '🛒', color: '#059669', description: 'Manages store items', factories: [
+                    { name: 'Product Catalog Manager', goal: 'Organize products and categories' },
+                    { name: 'Inventory Tracker', goal: 'Manage stock levels' },
+                    { name: 'Search & Filter Engine', goal: 'Implement search and faceted filtering' }
+                ]},
+                { name: 'Transaction & Fulfillment', icon: '💳', color: '#7c3aed', description: 'Handles payments and orders', factories: [
+                    { name: 'Cart & Checkout Flow', goal: 'Manage user cart state' },
+                    { name: 'Payment Gateway Handler', goal: 'Process secure payments' },
+                    { name: 'Order Management System', goal: 'Track order fulfillment' }
+                ]}
+            ]
+        },
+        {
+            name: "AI/ML/Bot",
+            keywords: ["ai", "bot", "chat", "assistant", "gpt", "machine learning", "ml", "neural", "smart", "intelligent", "predict"],
+            weight: 1,
+            industries: [
+                { name: 'AI Core Engine', icon: '🧠', color: '#8b5cf6', description: 'Handles intelligence and models', factories: [
+                    { name: 'Model Architecture Builder', goal: 'Design ML model structures' },
+                    { name: 'Training Pipeline', goal: 'Train models on datasets' },
+                    { name: 'Inference Engine', goal: 'Run predictions and logic' },
+                    { name: 'Prompt Engineering Lab', goal: 'Optimize LLM prompts' }
+                ]},
+                { name: 'Interface & Integration', icon: '🔌', color: '#64748b', description: 'Interfaces AI with users', factories: [
+                    { name: 'Conversational UI Builder', goal: 'Build chat interfaces' },
+                    { name: 'API Endpoint Constructor', goal: 'Expose model via API' },
+                    { name: 'Context Memory Manager', goal: 'Manage conversation context' }
+                ]}
+            ]
+        },
+        {
+            name: "Calculator/Tool/Utility",
+            keywords: ["calculator", "calc", "math", "tool", "utility", "converter", "generator", "timer", "clock", "pomodoro"],
+            weight: 1,
+            industries: [
+                { name: 'Application Core', icon: '🔢', color: '#2563eb', description: 'Core tool logic and processing', factories: [
+                    { name: 'Logic Engine Builder', goal: 'Implement calculations or tool logic' },
+                    { name: 'Input Validation Suite', goal: 'Validate user input constraints' },
+                    { name: 'State Machine Architect', goal: 'Manage tool states' }
+                ]},
+                { name: 'User Interface', icon: '🖥️', color: '#059669', description: 'Tool presentation layer', factories: [
+                    { name: 'Control Panel Designer', goal: 'Design interactive controls' },
+                    { name: 'Display Renderer', goal: 'Render outputs and feedback' },
+                    { name: 'Interaction Handler', goal: 'Handle clicks and inputs' }
+                ]}
+            ]
+        },
+        {
+            name: "Social/Community",
+            keywords: ["social", "community", "forum", "post", "comment", "like", "share", "profile", "feed", "follow"],
+            weight: 1,
+            industries: [
+                { name: 'Social Platform Core', icon: '👥', color: '#ec4899', description: 'Manages user interaction', factories: [
+                    { name: 'User Profile Manager', goal: 'Handle profiles and settings' },
+                    { name: 'Content Feed Engine', goal: 'Generate user content feeds' },
+                    { name: 'Engagement Tracker', goal: 'Track likes and comments' }
+                ]},
+                { name: 'Moderation & Safety', icon: '🛡️', color: '#64748b', description: 'Maintains community standards', factories: [
+                    { name: 'Content Filter', goal: 'Filter inappropriate content' },
+                    { name: 'Report Handler', goal: 'Process user reports' },
+                    { name: 'Community Guidelines Enforcer', goal: 'Enforce platform rules' }
+                ]}
+            ]
+        },
+        {
+            name: "Automation/Integration",
+            keywords: ["automate", "automation", "integrate", "connect", "api", "webhook", "scrape", "crawl", "pipeline", "workflow", "sync"],
+            weight: 1,
+            industries: [
+                { name: 'Automation Core', icon: '⚙️', color: '#f97316', description: 'Executes automated tasks', factories: [
+                    { name: 'Workflow Orchestrator', goal: 'Orchestrate task sequences' },
+                    { name: 'API Connector Builder', goal: 'Connect to external APIs' },
+                    { name: 'Error Recovery Handler', goal: 'Handle retries and failures' }
+                ]},
+                { name: 'Monitoring & Logging', icon: '📋', color: '#64748b', description: 'Observes system operations', factories: [
+                    { name: 'Execution Logger', goal: 'Log automation steps' },
+                    { name: 'Health Check Monitor', goal: 'Monitor system uptime' },
+                    { name: 'Performance Profiler', goal: 'Profile bottleneck performance' }
+                ]}
+            ]
+        },
+        {
+            name: "Education/Learning",
+            keywords: ["learn", "education", "course", "quiz", "study", "exam", "test", "tutor", "school", "lesson", "teach"],
+            weight: 1,
+            industries: [
+                { name: 'Content & Curriculum', icon: '📚', color: '#2563eb', description: 'Manages educational content', factories: [
+                    { name: 'Lesson Content Creator', goal: 'Create structured lessons' },
+                    { name: 'Assessment Generator', goal: 'Generate quizzes and exams' },
+                    { name: 'Progress Tracker', goal: 'Track student completion' }
+                ]},
+                { name: 'Interactive Learning', icon: '🎓', color: '#059669', description: 'Facilitates student engagement', factories: [
+                    { name: 'Interactive Exercise Builder', goal: 'Build interactive practice modules' },
+                    { name: 'Feedback Engine', goal: 'Provide real-time feedback' },
+                    { name: 'Certificate Generator', goal: 'Generate completion certificates' }
+                ]}
+            ]
+        }
+    ];
+
+    static FALLBACK_RULE = {
+        industries: [
+            { name: 'Core Application Logic', icon: '⚡', color: '#3b82f6', description: 'Builds core functionality and interfaces', factories: [
+                { name: 'Requirements Analyzer', goal: 'Analyze and define functional requirements' },
+                { name: 'Logic Synthesizer', goal: 'Synthesize core business logic' },
+                { name: 'Interface Builder', goal: 'Build main application interfaces' }
+            ]},
+            { name: 'Testing & Delivery', icon: '✅', color: '#059669', description: 'Ensures application quality and delivery', factories: [
+                { name: 'Integration Tester', goal: 'Test integrations between components' },
+                { name: 'Performance Validator', goal: 'Validate system performance under load' },
+                { name: 'Deployment Packager', goal: 'Package the application for deployment' }
+            ]}
+        ]
+    };
+
+    static QA_INDUSTRY = {
+        name: 'Quality Assurance & Testing', icon: '🧪', color: '#64748b', description: 'Ensures system reliability and correctness',
+        factories: [
+            { name: 'Unit Test Runner', goal: 'Run unit tests on isolated components' },
+            { name: 'Integration Validator', goal: 'Validate interactions between systems' },
+            { name: 'User Acceptance Tester', goal: 'Simulate user interactions for acceptance' }
+        ]
+    };
+
+    static decompose(goalText) {
+        const goalLower = (goalText || '').toLowerCase();
+        let matchedRules = [];
+
+        for (const rule of this.DECOMPOSITION_RULES) {
+            const score = this.scoreRule(goalLower, rule);
+            if (score > 0) matchedRules.push({ rule, score });
+        }
+
+        let finalIndustries = [];
+        if (matchedRules.length > 0) {
+            matchedRules.sort((a, b) => b.score - a.score);
+            finalIndustries = this.mergeIndustries(matchedRules.map(mr => mr.rule));
+        } else {
+            finalIndustries = JSON.parse(JSON.stringify(this.FALLBACK_RULE.industries));
+        }
+
+        // Always add QA industry at the end
+        finalIndustries.push(JSON.parse(JSON.stringify(this.QA_INDUSTRY)));
+
+        let totalFactories = 0;
+        for (const industry of finalIndustries) {
+            totalFactories += industry.factories.length;
+        }
+
+        return {
+            goal: goalText,
+            industries: finalIndustries,
+            totalFactories,
+            estimatedAgentsNeeded: totalFactories * 500
+        };
+    }
+
+    static scoreRule(goalLower, rule) {
+        let count = 0;
+        for (const keyword of rule.keywords) {
+            if (goalLower.includes(keyword)) count++;
+        }
+        return count * (rule.weight || 1);
+    }
+
+    static mergeIndustries(matchedRules) {
+        const industryMap = new Map();
+        for (const rule of matchedRules) {
+            for (const industry of rule.industries) {
+                if (!industryMap.has(industry.name)) {
+                    industryMap.set(industry.name, {
+                        name: industry.name, icon: industry.icon, color: industry.color,
+                        description: industry.description, factories: []
+                    });
+                }
+                const existing = industryMap.get(industry.name);
+                for (const factory of industry.factories) {
+                    if (!existing.factories.some(f => f.name === factory.name)) {
+                        existing.factories.push({ ...factory });
+                    }
+                }
+            }
+        }
+        return Array.from(industryMap.values());
+    }
+}
 
 // ==========================================
 // ARTIFACT BUILDER & LIVE APP GENERATOR
 // ==========================================
 
 class ArtifactGenerator {
+    // Weighted keyword scoring dispatch - prevents wrong matches like "video creator" → "canvas drawing"
+    static GENERATOR_RULES = [
+        { keywords: ['smartwatch', 'watch', 'wearable'], method: 'generateSmartwatch', weight: 3 },
+        { keywords: ['video', 'movie', 'film', 'youtube creator', 'video creator', 'video editor'], method: 'generateVideoCreator', weight: 3 },
+        { keywords: ['landing', 'landing page', 'homepage'], method: 'generateLandingPage', weight: 3 },
+        { keywords: ['form', 'form builder', 'survey form'], method: 'generateFormBuilder', weight: 3 },
+        { keywords: ['survey', 'quiz', 'questionnaire', 'exam'], method: 'generateSurveyQuiz', weight: 3 },
+        { keywords: ['portfolio', 'resume', 'cv', 'personal site'], method: 'generatePortfolio', weight: 3 },
+        { keywords: ['shop', 'store', 'ecommerce', 'e-commerce', 'product', 'cart'], method: 'generateEcommerce', weight: 3 },
+        { keywords: ['markdown', 'editor', 'text editor', 'notes', 'notepad'], method: 'generateMarkdownEditor', weight: 3 },
+        { keywords: ['kanban', 'board', 'trello', 'project board'], method: 'generateKanban', weight: 3 },
+        { keywords: ['calendar', 'scheduler', 'planner', 'events', 'event planner'], method: 'generateCalendar', weight: 3 },
+        { keywords: ['gallery', 'photo', 'image gallery', 'photos'], method: 'generateImageGallery', weight: 3 },
+        { keywords: ['invoice', 'billing', 'receipt'], method: 'generateInvoice', weight: 3 },
+        { keywords: ['recipe', 'cookbook', 'cooking', 'food', 'meal'], method: 'generateRecipeApp', weight: 3 },
+        { keywords: ['fitness', 'workout', 'exercise', 'gym', 'health tracker'], method: 'generateFitnessTracker', weight: 3 },
+        { keywords: ['budget', 'expense', 'finance tracker', 'money', 'spending'], method: 'generateBudgetTracker', weight: 3 },
+        { keywords: ['calc', 'calculator', 'math', 'arithmetic'], method: 'generateCalculator', weight: 2 },
+        { keywords: ['music', 'audio', 'player', 'song', 'spotify'], method: 'generateMusicPlayer', weight: 2 },
+        { keywords: ['chat', 'chatbot', 'assistant', 'gpt', 'ai chat'], method: 'generateAIChat', weight: 2 },
+        { keywords: ['draw', 'paint', 'canvas', 'sketch', 'whiteboard'], method: 'generateCanvasDrawing', weight: 2 },
+        { keywords: ['crypto', 'stock', 'market', 'trade', 'trading'], method: 'generateCryptoDashboard', weight: 2 },
+        { keywords: ['todo', 'task list', 'to-do'], method: 'generateTodo', weight: 2 },
+        { keywords: ['snake', 'game', 'arcade'], method: 'generateSnakeGame', weight: 1 },
+        { keywords: ['weather', 'forecast'], method: 'generateWeather', weight: 2 },
+        { keywords: ['timer', 'pomodoro', 'clock', 'countdown'], method: 'generateTimer', weight: 2 },
+    ];
+
     static generate(goalText) {
         const text = (goalText || '').toLowerCase();
         
-        if (text.includes('watch') || text.includes('smartwatch') || text.includes('wearable')) {
-            return this.generateSmartwatch(goalText);
-        } else if (text.includes('calc') || text.includes('math') || text.includes('arithmetic')) {
-            return this.generateCalculator(goalText);
-        } else if (text.includes('music') || text.includes('audio') || text.includes('player') || text.includes('song') || text.includes('spotify')) {
-            return this.generateMusicPlayer(goalText);
-        } else if (text.includes('chat') || text.includes('ai') || text.includes('bot') || text.includes('assistant') || text.includes('gpt')) {
-            return this.generateAIChat(goalText);
-        } else if (text.includes('draw') || text.includes('paint') || text.includes('canvas') || text.includes('sketch')) {
-            return this.generateCanvasDrawing(goalText);
-        } else if (text.includes('crypto') || text.includes('stock') || text.includes('market') || text.includes('trade') || text.includes('chart')) {
-            return this.generateCryptoDashboard(goalText);
-        } else if (text.includes('todo') || text.includes('task') || text.includes('kanban')) {
-            return this.generateTodo(goalText);
-        } else if (text.includes('snake') || text.includes('game') || text.includes('arcade')) {
-            return this.generateSnakeGame(goalText);
-        } else if (text.includes('weather') || text.includes('forecast')) {
-            return this.generateWeather(goalText);
-        } else if (text.includes('timer') || text.includes('pomodoro') || text.includes('clock')) {
-            return this.generateTimer(goalText);
-        } else {
-            return this.generateDynamicApp(goalText);
+        // Score each generator by counting keyword matches * weight
+        let bestScore = 0;
+        let bestMethod = 'generateDynamicApp';
+        
+        for (const rule of this.GENERATOR_RULES) {
+            let score = 0;
+            for (const keyword of rule.keywords) {
+                if (text.includes(keyword)) score += rule.weight;
+            }
+            if (score > bestScore) {
+                bestScore = score;
+                bestMethod = rule.method;
+            }
         }
+        
+        return this[bestMethod](goalText);
     }
 
     // ⌚ SMARTWATCH OS SIMULATOR
@@ -1543,6 +1803,120 @@ class ArtifactGenerator {
             ]
         };
     }
+
+    // 🎬 VIDEO CREATOR STUDIO
+    static generateVideoCreator(goalText) {
+        const code = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Video Creator Studio</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh}.app{max-width:1100px;margin:0 auto;padding:20px}.header{background:#fff;border-radius:12px;padding:16px 24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center}.header h1{font-size:22px;font-weight:700;color:#0f172a}.toolbar{display:flex;gap:8px}.toolbar button{padding:8px 16px;border:1px solid #e2e8f0;background:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}.toolbar button:hover{background:#f1f5f9;border-color:#3b82f6;color:#3b82f6}.toolbar button.primary{background:#3b82f6;color:#fff;border-color:#3b82f6}.toolbar button.primary:hover{background:#2563eb}.main{display:grid;grid-template-columns:240px 1fr;gap:16px}.scenes-panel{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.scenes-panel h3{font-size:13px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}.scene-card{background:#f8fafc;border:2px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all .2s}.scene-card.active{border-color:#3b82f6;background:#eff6ff}.scene-card:hover{border-color:#93c5fd}.scene-label{font-size:12px;font-weight:600;color:#334155}.scene-dur{font-size:11px;color:#94a3b8;margin-top:4px}.canvas-area{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}.preview-canvas{width:100%;aspect-ratio:16/9;background:#0f172a;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.preview-canvas .scene-content{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#fff;padding:40px;text-align:center;transition:opacity .4s}.preview-canvas h2{font-size:32px;font-weight:800}.preview-canvas p{font-size:16px;opacity:.8}.controls{padding:16px;display:flex;align-items:center;gap:12px}.controls button{width:40px;height:40px;border-radius:50%;border:none;background:#3b82f6;color:#fff;font-size:16px;cursor:pointer;transition:all .2s}.controls button:hover{background:#2563eb;transform:scale(1.1)}.timeline{flex:1;height:6px;background:#e2e8f0;border-radius:3px;position:relative;cursor:pointer}.timeline-fill{height:100%;background:#3b82f6;border-radius:3px;transition:width .3s}.time-label{font-size:12px;font-weight:600;color:#64748b;font-family:monospace;min-width:80px;text-align:right}.add-scene{border:2px dashed #cbd5e1;border-radius:8px;padding:12px;text-align:center;font-size:12px;color:#94a3b8;cursor:pointer;transition:all .2s}.add-scene:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}.props-panel{margin-top:16px;background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.props-panel h3{font-size:13px;font-weight:700;color:#64748b;margin-bottom:12px;text-transform:uppercase}.prop-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}.prop-row label{font-size:12px;font-weight:600;color:#475569;min-width:80px}.prop-row input,.prop-row select{flex:1;padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;background:#f8fafc}.prop-row input:focus,.prop-row select:focus{outline:none;border-color:#3b82f6}</style></head><body><div class="app"><div class="header"><h1>🎬 Video Creator Studio</h1><div class="toolbar"><button onclick="addScene()">+ Add Scene</button><button onclick="exportProject()" class="primary">⬇ Export Project</button></div></div><div class="main"><div><div class="scenes-panel"><h3>Scenes Timeline</h3><div id="scenes-list"></div><div class="add-scene" onclick="addScene()">+ New Scene</div></div><div class="props-panel"><h3>Scene Properties</h3><div class="prop-row"><label>Title</label><input id="prop-title" oninput="updateProp('title',this.value)"></div><div class="prop-row"><label>Subtitle</label><input id="prop-subtitle" oninput="updateProp('subtitle',this.value)"></div><div class="prop-row"><label>Background</label><input type="color" id="prop-bg" value="#0f172a" oninput="updateProp('bg',this.value)"></div><div class="prop-row"><label>Duration (s)</label><input type="number" id="prop-duration" value="3" min="1" max="30" oninput="updateProp('duration',this.value)"></div><div class="prop-row"><label>Transition</label><select id="prop-transition" onchange="updateProp('transition',this.value)"><option value="fade">Fade</option><option value="slide">Slide Left</option><option value="zoom">Zoom In</option><option value="cut">Cut</option></select></div></div></div><div class="canvas-area"><div class="preview-canvas" id="preview"><div class="scene-content" id="scene-display"><h2 id="disp-title">Welcome</h2><p id="disp-subtitle">Your video starts here</p></div></div><div class="controls"><button id="play-btn" onclick="togglePlayback()">▶</button><div class="timeline" id="timeline" onclick="seekTimeline(event)"><div class="timeline-fill" id="timeline-fill"></div></div><span class="time-label" id="time-label">0:00 / 0:00</span></div></div></div></div><script>var scenes=[{id:1,title:"Welcome",subtitle:"Your video starts here",bg:"#0f172a",duration:3,transition:"fade"},{id:2,title:"Feature Highlight",subtitle:"Showcase your best work",bg:"#1e40af",duration:4,transition:"slide"},{id:3,title:"Call to Action",subtitle:"Get started today",bg:"#059669",duration:3,transition:"zoom"}];var currentScene=0;var playing=false;var playTimer=null;var elapsed=0;var nextId=4;function render(){var list=document.getElementById("scenes-list");list.innerHTML="";scenes.forEach(function(s,i){var div=document.createElement("div");div.className="scene-card"+(i===currentScene?" active":"");div.innerHTML='<div class="scene-label">Scene '+(i+1)+": "+s.title+'</div><div class="scene-dur">'+s.duration+'s \u2022 '+s.transition+"</div>";div.onclick=function(){selectScene(i)};list.appendChild(div)});showScene(currentScene)}function selectScene(i){currentScene=i;elapsed=0;showScene(i);updateProps()}function showScene(i){var s=scenes[i];if(!s)return;var prev=document.getElementById("preview");prev.style.background=s.bg;document.getElementById("disp-title").textContent=s.title;document.getElementById("disp-subtitle").textContent=s.subtitle;updateTimeline()}function updateProps(){var s=scenes[currentScene];if(!s)return;document.getElementById("prop-title").value=s.title;document.getElementById("prop-subtitle").value=s.subtitle;document.getElementById("prop-bg").value=s.bg;document.getElementById("prop-duration").value=s.duration;document.getElementById("prop-transition").value=s.transition}function updateProp(key,val){if(!scenes[currentScene])return;if(key==="duration")val=parseInt(val)||3;scenes[currentScene][key]=val;render();updateProps()}function addScene(){scenes.push({id:nextId++,title:"Scene "+(scenes.length+1),subtitle:"Add your content",bg:["#0f172a","#1e40af","#059669","#7c3aed","#dc2626","#d97706"][scenes.length%6],duration:3,transition:"fade"});currentScene=scenes.length-1;render();updateProps()}function togglePlayback(){playing=!playing;document.getElementById("play-btn").textContent=playing?"⏸":"▶";if(playing){playTimer=setInterval(function(){elapsed+=0.1;var s=scenes[currentScene];if(elapsed>=s.duration){elapsed=0;if(currentScene<scenes.length-1){currentScene++;showScene(currentScene)}else{playing=false;document.getElementById("play-btn").textContent="▶";currentScene=0;showScene(0);clearInterval(playTimer)}}updateTimeline()},100)}else{clearInterval(playTimer)}}function updateTimeline(){var s=scenes[currentScene];if(!s)return;var pct=(elapsed/s.duration)*100;document.getElementById("timeline-fill").style.width=Math.min(pct,100)+"%";var totalTime=scenes.reduce(function(a,b){return a+b.duration},0);var elapsedTotal=0;for(var i=0;i<currentScene;i++)elapsedTotal+=scenes[i].duration;elapsedTotal+=elapsed;var fmt=function(t){var m=Math.floor(t/60);var sec=Math.floor(t%60);return m+":"+(sec<10?"0":"")+sec};document.getElementById("time-label").textContent=fmt(elapsedTotal)+" / "+fmt(totalTime)}function seekTimeline(e){var rect=e.target.getBoundingClientRect();var pct=(e.clientX-rect.left)/rect.width;var s=scenes[currentScene];elapsed=pct*s.duration;updateTimeline()}function exportProject(){alert("Project exported! "+scenes.length+" scenes, "+scenes.reduce(function(a,b){return a+b.duration},0)+"s total duration.")}render();updateProps()</script></body></html>`;
+        return { title: 'Video Creator Studio', type: 'Video Creator', code, stages: [
+            { name: 'Scene Graph Architecture', agent: 'AGT-VIDEO-101', desc: 'Building scene timeline and transition graph.' },
+            { name: 'Canvas Renderer Pipeline', agent: 'AGT-RENDER-202', desc: 'Setting up preview rendering engine.' },
+            { name: 'Playback Control System', agent: 'AGT-MEDIA-303', desc: 'Implementing play/pause/seek controls.' },
+            { name: 'Export & Packaging', agent: 'NEXUS-BUILD-01', desc: 'Packaging final video project bundle.' }
+        ]};
+    }
+
+    // 🌐 LANDING PAGE BUILDER
+    static generateLandingPage(goalText) {
+        const code = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Landing Page</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Tahoma,sans-serif;background:#fff;color:#1e293b;line-height:1.6}.hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);color:#fff;padding:80px 24px;text-align:center}.hero h1{font-size:clamp(32px,5vw,56px);font-weight:800;margin-bottom:16px;letter-spacing:-1px}.hero p{font-size:18px;opacity:.85;max-width:600px;margin:0 auto 32px}.cta-btn{display:inline-block;padding:14px 32px;background:#3b82f6;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;border:none;cursor:pointer;transition:all .2s}.cta-btn:hover{background:#2563eb;transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,.3)}.section{padding:64px 24px;max-width:1000px;margin:0 auto}.section-title{text-align:center;font-size:28px;font-weight:800;margin-bottom:8px;color:#0f172a}.section-desc{text-align:center;color:#64748b;margin-bottom:40px;font-size:15px}.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px}.feature-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:24px;text-align:center;transition:all .3s}.feature-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.08)}.feature-icon{font-size:36px;margin-bottom:12px}.feature-card h3{font-size:16px;font-weight:700;margin-bottom:8px;color:#0f172a}.feature-card p{font-size:13px;color:#64748b}.testimonials{background:#f8fafc;padding:64px 24px}.testimonial-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1000px;margin:0 auto}.testimonial-card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.testimonial-card p{font-style:italic;color:#475569;margin-bottom:12px;font-size:14px;line-height:1.7}.testimonial-author{font-weight:700;color:#0f172a;font-size:13px}.pricing{padding:64px 24px;max-width:1000px;margin:0 auto}.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}.price-card{background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:32px 24px;text-align:center;transition:all .3s}.price-card.featured{border-color:#3b82f6;position:relative}.price-card.featured::before{content:"POPULAR";position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#3b82f6;color:#fff;padding:4px 16px;border-radius:12px;font-size:11px;font-weight:700}.price-card h3{font-size:18px;font-weight:700;margin-bottom:8px}.price-amt{font-size:40px;font-weight:800;color:#0f172a;margin-bottom:16px}.price-amt span{font-size:14px;font-weight:500;color:#94a3b8}.price-features{list-style:none;margin-bottom:24px}.price-features li{padding:6px 0;font-size:13px;color:#475569;border-bottom:1px solid #f1f5f9}.footer{background:#0f172a;color:#94a3b8;padding:40px 24px;text-align:center;font-size:13px}</style></head><body><div class="hero"><h1>Build Something Amazing</h1><p>The all-in-one platform that helps teams ship products faster, with less complexity and more confidence.</p><button class="cta-btn" onclick="alert('Getting started!')">Get Started Free →</button></div><div class="section"><h2 class="section-title">Why Choose Us?</h2><p class="section-desc">Everything you need to build, deploy, and scale your product.</p><div class="features"><div class="feature-card"><div class="feature-icon">⚡</div><h3>Lightning Fast</h3><p>Optimized for speed with sub-50ms response times globally.</p></div><div class="feature-card"><div class="feature-icon">🔒</div><h3>Enterprise Security</h3><p>SOC2 compliant with end-to-end encryption and audit logging.</p></div><div class="feature-card"><div class="feature-icon">📊</div><h3>Real-Time Analytics</h3><p>Monitor every metric with live dashboards and instant alerts.</p></div><div class="feature-card"><div class="feature-icon">🔌</div><h3>Integrations</h3><p>Connect with 200+ tools including Slack, GitHub, and Jira.</p></div></div></div><div class="testimonials"><h2 class="section-title">What People Say</h2><p class="section-desc">Trusted by 10,000+ teams worldwide</p><div class="testimonial-grid"><div class="testimonial-card"><p>"This platform transformed how we build products. We shipped 3x faster in the first month."</p><div class="testimonial-author">— Sarah Chen, CTO at TechCorp</div></div><div class="testimonial-card"><p>"The analytics alone are worth the price. We finally have visibility into what matters."</p><div class="testimonial-author">— Marcus Williams, VP Engineering</div></div><div class="testimonial-card"><p>"Setup took 5 minutes. The integrations work flawlessly. Highly recommended."</p><div class="testimonial-author">— Priya Patel, Engineering Lead</div></div></div></div><div class="pricing"><h2 class="section-title">Simple Pricing</h2><p class="section-desc">Start free. Scale as you grow.</p><div class="pricing-grid"><div class="price-card"><h3>Starter</h3><div class="price-amt">$0<span>/mo</span></div><ul class="price-features"><li>Up to 3 projects</li><li>Basic analytics</li><li>Community support</li><li>1 GB storage</li></ul><button class="cta-btn" style="background:#64748b" onclick="alert('Starting free plan!')">Start Free</button></div><div class="price-card featured"><h3>Pro</h3><div class="price-amt">$29<span>/mo</span></div><ul class="price-features"><li>Unlimited projects</li><li>Advanced analytics</li><li>Priority support</li><li>100 GB storage</li></ul><button class="cta-btn" onclick="alert('Starting Pro plan!')">Start Pro</button></div><div class="price-card"><h3>Enterprise</h3><div class="price-amt">$99<span>/mo</span></div><ul class="price-features"><li>Everything in Pro</li><li>Custom integrations</li><li>24/7 dedicated support</li><li>Unlimited storage</li></ul><button class="cta-btn" style="background:#64748b" onclick="alert('Contact sales!')">Contact Sales</button></div></div></div><div class="footer">© 2026 SwarmBuilt Inc. All rights reserved. Built by AI Agent Swarm.</div></body></html>`;
+        return { title: 'Landing Page', type: 'Landing Page', code, stages: [
+            { name: 'Layout Architecture', agent: 'AGT-DESIGN-101', desc: 'Building hero, features, pricing sections.' },
+            { name: 'Responsive Styling', agent: 'AGT-CSS-202', desc: 'Applying responsive design system.' },
+            { name: 'Artifact Deployment', agent: 'NEXUS-BUILD-01', desc: 'Packaging standalone landing page.' }
+        ]};
+    }
+
+    // 📝 FORM BUILDER
+    static generateFormBuilder(goalText) {
+        const code = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Form Builder</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh}.app{display:grid;grid-template-columns:220px 1fr 300px;gap:16px;padding:16px;max-width:1200px;margin:0 auto;min-height:calc(100vh - 80px)}.header{grid-column:1/-1;background:#fff;border-radius:12px;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}.header h1{font-size:20px;font-weight:700}.panel{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.panel h3{font-size:12px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.05em;margin-bottom:12px}.field-type{padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;display:flex;align-items:center;gap:8px}.field-type:hover{border-color:#3b82f6;background:#eff6ff;color:#3b82f6}.canvas-panel{min-height:400px}.form-field{background:#f8fafc;border:2px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:8px;position:relative;transition:all .2s;cursor:pointer}.form-field:hover{border-color:#93c5fd}.form-field.selected{border-color:#3b82f6;background:#eff6ff}.form-field label{display:block;font-size:13px;font-weight:600;color:#334155;margin-bottom:6px}.form-field input,.form-field textarea,.form-field select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;background:#fff}.form-field .remove-btn{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;border:none;background:#fee2e2;color:#dc2626;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}.form-field:hover .remove-btn{opacity:1}.empty-canvas{text-align:center;padding:60px 20px;color:#94a3b8;font-size:14px}.prop-group{margin-bottom:12px}.prop-group label{font-size:11px;font-weight:600;color:#475569;display:block;margin-bottom:4px}.prop-group input,.prop-group select{width:100%;padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;background:#f8fafc}.prop-group input:focus,.prop-group select:focus{outline:none;border-color:#3b82f6}.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0}.toggle-row label{font-size:12px;font-weight:600;color:#475569}.toggle{width:36px;height:20px;background:#e2e8f0;border-radius:10px;position:relative;cursor:pointer;transition:all .2s}.toggle.on{background:#3b82f6}.toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:all .2s}.toggle.on::after{left:18px}.submit-preview{margin-top:16px;padding:10px;background:#059669;color:#fff;border:none;border-radius:8px;width:100%;font-weight:700;cursor:pointer;font-size:13px;transition:all .2s}.submit-preview:hover{background:#047857}@media(max-width:768px){.app{grid-template-columns:1fr}}</style></head><body><div class="app"><div class="header"><h1>📝 Form Builder</h1><button style="padding:8px 16px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer" onclick="previewForm()">👁 Preview Form</button></div><div class="panel" id="toolbox"><h3>Field Types</h3><div class="field-type" onclick="addField('text')">📄 Text Input</div><div class="field-type" onclick="addField('email')">📧 Email</div><div class="field-type" onclick="addField('number')">🔢 Number</div><div class="field-type" onclick="addField('textarea')">📝 Text Area</div><div class="field-type" onclick="addField('select')">📋 Dropdown</div><div class="field-type" onclick="addField('checkbox')">☑️ Checkbox</div><div class="field-type" onclick="addField('radio')">🔘 Radio Group</div><div class="field-type" onclick="addField('date')">📅 Date</div></div><div class="panel canvas-panel" id="canvas"><h3>Form Canvas</h3><div id="fields-container"></div></div><div class="panel" id="props-panel"><h3>Field Properties</h3><div id="props-content"><p style="font-size:12px;color:#94a3b8">Select a field to edit its properties</p></div></div></div><script>var fields=[];var selectedIdx=-1;var nextId=1;function addField(type){var f={id:nextId++,type:type,label:type.charAt(0).toUpperCase()+type.slice(1)+" Field",placeholder:"Enter "+type+"...",required:false,options:type==="select"||type==="radio"?"Option 1, Option 2, Option 3":""};fields.push(f);selectedIdx=fields.length-1;renderAll()}function removeField(idx){fields.splice(idx,1);selectedIdx=Math.min(selectedIdx,fields.length-1);renderAll()}function selectField(idx){selectedIdx=idx;renderAll()}function renderAll(){renderCanvas();renderProps()}function renderCanvas(){var c=document.getElementById("fields-container");if(fields.length===0){c.innerHTML='<div class="empty-canvas">Click a field type on the left to add it here</div>';return}c.innerHTML="";fields.forEach(function(f,i){var div=document.createElement("div");div.className="form-field"+(i===selectedIdx?" selected":"");div.onclick=function(e){if(!e.target.classList.contains("remove-btn"))selectField(i)};var html='<button class="remove-btn" onclick="removeField('+i+')">×</button>';html+="<label>"+f.label+(f.required?' <span style="color:#ef4444">*</span>':"")+"</label>";if(f.type==="textarea"){html+='<textarea placeholder="'+f.placeholder+'" rows="3"></textarea>'}else if(f.type==="select"){var opts=(f.options||"").split(",");html+="<select>";opts.forEach(function(o){html+="<option>"+o.trim()+"</option>"});html+="</select>"}else if(f.type==="checkbox"){html+='<label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:12px"><input type="checkbox"> '+f.placeholder+"</label>"}else if(f.type==="radio"){var opts=(f.options||"").split(",");opts.forEach(function(o){html+='<label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:12px;margin-bottom:4px"><input type="radio" name="radio-'+f.id+'"> '+o.trim()+"</label>"})}else{html+='<input type="'+f.type+'" placeholder="'+f.placeholder+'">'}div.innerHTML=html;c.appendChild(div)})}function renderProps(){var pc=document.getElementById("props-content");if(selectedIdx<0||!fields[selectedIdx]){pc.innerHTML='<p style="font-size:12px;color:#94a3b8">Select a field to edit</p>';return}var f=fields[selectedIdx];var html='<div class="prop-group"><label>Label</label><input value="'+f.label+'" oninput="updateProp(\\'label\\',this.value)"></div>';html+='<div class="prop-group"><label>Placeholder</label><input value="'+f.placeholder+'" oninput="updateProp(\\'placeholder\\',this.value)"></div>';if(f.type==="select"||f.type==="radio"){html+='<div class="prop-group"><label>Options (comma separated)</label><input value="'+f.options+'" oninput="updateProp(\\'options\\',this.value)"></div>'}html+='<div class="toggle-row"><label>Required</label><div class="toggle'+(f.required?" on":"")+'" onclick="updateProp(\\'required\\',!fields['+selectedIdx+'].required)"></div></div>';html+='<button class="submit-preview" onclick="removeField('+selectedIdx+')">🗑 Remove Field</button>';pc.innerHTML=html}function updateProp(key,val){if(selectedIdx>=0&&fields[selectedIdx]){fields[selectedIdx][key]=val;renderAll()}}function previewForm(){var msg="Form Preview:\\n\\n";fields.forEach(function(f){msg+=f.label+(f.required?" (required)":"")+": ["+f.type+"]\\n"});msg+="\\nTotal fields: "+fields.length;alert(msg)}renderAll()</script></body></html>`;
+        return { title: 'Form Builder', type: 'Form Builder', code, stages: [
+            { name: 'Field Type Registry', agent: 'AGT-FORM-101', desc: 'Registering all input field types.' },
+            { name: 'Canvas Drag Engine', agent: 'AGT-UI-202', desc: 'Building interactive form canvas.' },
+            { name: 'Artifact Deployment', agent: 'NEXUS-BUILD-01', desc: 'Packaging form builder app.' }
+        ]};
+    }
+
+    // 📋 KANBAN BOARD
+    static generateKanban(goalText) {
+        const code = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Kanban Board</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh;padding:20px}.header{background:#fff;border-radius:12px;padding:16px 24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center}.header h1{font-size:22px;font-weight:700}.board{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;min-height:calc(100vh - 120px)}.column{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.col-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:2px solid #e2e8f0}.col-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b}.col-count{background:#f1f5f9;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;color:#64748b}.col-body{min-height:200px}.card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:8px;cursor:grab;transition:all .2s;position:relative}.card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08);transform:translateY(-1px)}.card:active{cursor:grabbing;opacity:.8}.card-title{font-size:13px;font-weight:600;color:#1e293b;margin-bottom:4px}.card-desc{font-size:11px;color:#94a3b8;line-height:1.5}.card-priority{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-top:6px}.card-priority.high{background:#fee2e2;color:#dc2626}.card-priority.medium{background:#fef3c7;color:#d97706}.card-priority.low{background:#ecfdf5;color:#059669}.card-delete{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;border:none;background:transparent;color:#94a3b8;font-size:14px;cursor:pointer;opacity:0;transition:opacity .2s}.card:hover .card-delete{opacity:1}.card-delete:hover{background:#fee2e2;color:#dc2626}.add-card-area{margin-top:8px}.add-input{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;background:#fff;margin-bottom:6px}.add-input:focus{outline:none;border-color:#3b82f6}.add-btn{width:100%;padding:8px;border:2px dashed #cbd5e1;border-radius:8px;background:transparent;color:#94a3b8;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}.add-btn:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}@media(max-width:768px){.board{grid-template-columns:1fr}}</style></head><body><div class="header"><h1>📋 Kanban Board</h1></div><div class="board"><div class="column" id="col-todo" ondragover="event.preventDefault()" ondrop="dropCard(event,'todo')"><div class="col-header"><span class="col-title">To Do</span><span class="col-count" id="count-todo">0</span></div><div class="col-body" id="body-todo"></div><div class="add-card-area"><input class="add-input" id="input-todo" placeholder="Add a card..." onkeydown="if(event.key==='Enter')addCard('todo')"><button class="add-btn" onclick="addCard('todo')">+ Add Card</button></div></div><div class="column" id="col-progress" ondragover="event.preventDefault()" ondrop="dropCard(event,'progress')"><div class="col-header"><span class="col-title">In Progress</span><span class="col-count" id="count-progress">0</span></div><div class="col-body" id="body-progress"></div><div class="add-card-area"><input class="add-input" id="input-progress" placeholder="Add a card..." onkeydown="if(event.key==='Enter')addCard('progress')"><button class="add-btn" onclick="addCard('progress')">+ Add Card</button></div></div><div class="column" id="col-done" ondragover="event.preventDefault()" ondrop="dropCard(event,'done')"><div class="col-header"><span class="col-title">Done</span><span class="col-count" id="count-done">0</span></div><div class="col-body" id="body-done"></div><div class="add-card-area"><input class="add-input" id="input-done" placeholder="Add a card..." onkeydown="if(event.key==='Enter')addCard('done')"><button class="add-btn" onclick="addCard('done')">+ Add Card</button></div></div></div><script>var cards=[{id:1,title:"Design landing page",desc:"Create wireframes for the hero section",priority:"high",col:"todo"},{id:2,title:"Setup CI/CD pipeline",desc:"Configure GitHub Actions for auto-deploy",priority:"medium",col:"todo"},{id:3,title:"Write API endpoints",desc:"REST API for user authentication",priority:"high",col:"progress"},{id:4,title:"Database schema",desc:"Design PostgreSQL schema",priority:"low",col:"done"}];var nextId=5;var dragId=null;function render(){["todo","progress","done"].forEach(function(col){var body=document.getElementById("body-"+col);body.innerHTML="";var colCards=cards.filter(function(c){return c.col===col});document.getElementById("count-"+col).textContent=colCards.length;colCards.forEach(function(c){var div=document.createElement("div");div.className="card";div.draggable=true;div.dataset.id=c.id;div.ondragstart=function(){dragId=c.id};div.innerHTML='<button class="card-delete" onclick="deleteCard('+c.id+')">×</button><div class="card-title">'+c.title+"</div>"+(c.desc?'<div class="card-desc">'+c.desc+"</div>":"")+'<span class="card-priority '+c.priority+'">'+c.priority.toUpperCase()+"</span>";body.appendChild(div)})})}function addCard(col){var input=document.getElementById("input-"+col);var title=input.value.trim();if(!title)return;var priorities=["low","medium","high"];cards.push({id:nextId++,title:title,desc:"",priority:priorities[Math.floor(Math.random()*3)],col:col});input.value="";render()}function deleteCard(id){cards=cards.filter(function(c){return c.id!==id});render()}function dropCard(event,col){event.preventDefault();if(dragId===null)return;var card=cards.find(function(c){return c.id===dragId});if(card){card.col=col}dragId=null;render()}render()</script></body></html>`;
+        return { title: 'Kanban Board', type: 'Kanban Board', code, stages: [
+            { name: 'Column Layout Architecture', agent: 'AGT-KANBAN-101', desc: 'Building column-based board layout.' },
+            { name: 'Drag & Drop Engine', agent: 'AGT-DND-202', desc: 'Implementing HTML5 drag and drop system.' },
+            { name: 'Artifact Deployment', agent: 'NEXUS-BUILD-01', desc: 'Packaging kanban board app.' }
+        ]};
+    }
+
+    // 📝 MARKDOWN EDITOR
+    static generateMarkdownEditor(goalText) {
+        const code = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Markdown Editor</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;color:#1e293b;height:100vh;display:flex;flex-direction:column}.toolbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:8px 16px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}.toolbar-title{font-size:16px;font-weight:700;margin-right:auto}.tb-btn{padding:6px 10px;border:1px solid #e2e8f0;background:#fff;border-radius:6px;font-size:13px;cursor:pointer;transition:all .15s;font-weight:600;color:#475569}.tb-btn:hover{background:#f1f5f9;border-color:#3b82f6;color:#3b82f6}.tb-sep{width:1px;height:20px;background:#e2e8f0;margin:0 4px}.editor-area{flex:1;display:grid;grid-template-columns:1fr 1fr;overflow:hidden}.pane{display:flex;flex-direction:column}.pane-header{padding:8px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;display:flex;justify-content:space-between}#editor{flex:1;padding:16px;border:none;outline:none;resize:none;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;color:#334155;background:#fff;border-right:1px solid #e2e8f0}#preview{flex:1;padding:16px 24px;overflow-y:auto;background:#fff;font-size:14px;line-height:1.8}#preview h1{font-size:28px;font-weight:800;color:#0f172a;margin:16px 0 8px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}#preview h2{font-size:22px;font-weight:700;color:#1e293b;margin:14px 0 6px}#preview h3{font-size:18px;font-weight:700;color:#334155;margin:12px 0 4px}#preview p{margin:8px 0;color:#475569}#preview code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;color:#e11d48}#preview pre{background:#0f172a;color:#e2e8f0;padding:16px;border-radius:8px;overflow-x:auto;margin:12px 0;font-size:12px;line-height:1.6}#preview pre code{background:transparent;color:#e2e8f0;padding:0}#preview blockquote{border-left:4px solid #3b82f6;padding:8px 16px;margin:12px 0;background:#eff6ff;color:#1e40af;border-radius:0 8px 8px 0}#preview ul,#preview ol{padding-left:24px;margin:8px 0}#preview li{margin:4px 0;color:#475569}#preview a{color:#3b82f6;text-decoration:none}#preview a:hover{text-decoration:underline}#preview strong{font-weight:700;color:#0f172a}#preview em{font-style:italic}.stats{padding:6px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;display:flex;gap:16px}@media(max-width:768px){.editor-area{grid-template-columns:1fr;grid-template-rows:1fr 1fr}}</style></head><body><div class="toolbar"><span class="toolbar-title">📝 Markdown Editor</span><button class="tb-btn" onclick="insertMd('**','**')"><b>B</b></button><button class="tb-btn" onclick="insertMd('*','*')"><i>I</i></button><div class="tb-sep"></div><button class="tb-btn" onclick="insertMd('# ','')">H1</button><button class="tb-btn" onclick="insertMd('## ','')">H2</button><button class="tb-btn" onclick="insertMd('### ','')">H3</button><div class="tb-sep"></div><button class="tb-btn" onclick="insertMd('[','](url)')">🔗</button><button class="tb-btn" onclick="insertMd('\\n\\n\`\`\`\\n','\\n\`\`\`\\n')">{ }</button><button class="tb-btn" onclick="insertMd('> ','')">❝</button><button class="tb-btn" onclick="insertMd('- ','')">• List</button><div class="tb-sep"></div><button class="tb-btn" onclick="copyMd()">📋 Copy MD</button><button class="tb-btn" onclick="copyHtml()">📋 Copy HTML</button></div><div class="editor-area"><div class="pane"><div class="pane-header"><span>Markdown</span><span id="char-count">0 chars</span></div><textarea id="editor" oninput="updatePreview()" placeholder="Type your markdown here...">
+# Hello World
+
+Welcome to the **Markdown Editor**! This editor supports:
+
+## Features
+
+- **Bold** and *italic* text
+- [Links](https://example.com)
+- Code blocks and \`inline code\`
+- Blockquotes and lists
+
+> This is a blockquote. It looks great!
+
+### Code Example
+
+\`\`\`
+function hello() {
+  console.log("Hello from the editor!");
+}
+\`\`\`
+
+### Ordered List
+
+1. First item
+2. Second item
+3. Third item
+
+---
+
+*Built by the AI Agent Swarm*</textarea></div><div class="pane"><div class="pane-header"><span>Preview</span><span id="word-count">0 words</span></div><div id="preview"></div></div></div><div class="stats"><span id="stat-lines">0 lines</span><span id="stat-reading">0 min read</span></div><script>function parseMd(md){var html=md;html=html.replace(/\`\`\`([\\s\\S]*?)\`\`\`/g,function(m,code){return"<pre><code>"+code.replace(/</g,"&lt;").replace(/>/g,"&gt;")+"</code></pre>"});html=html.replace(/\`([^\`]+)\`/g,"<code>$1</code>");html=html.replace(/^### (.*$)/gm,"<h3>$1</h3>");html=html.replace(/^## (.*$)/gm,"<h2>$1</h2>");html=html.replace(/^# (.*$)/gm,"<h1>$1</h1>");html=html.replace(/\\*\\*(.+?)\\*\\*/g,"<strong>$1</strong>");html=html.replace(/\\*(.+?)\\*/g,"<em>$1</em>");html=html.replace(/^> (.*$)/gm,"<blockquote>$1</blockquote>");html=html.replace(/^\\- (.*$)/gm,"<li>$1</li>");html=html.replace(/^\\d+\\. (.*$)/gm,"<li>$1</li>");html=html.replace(/\\[(.+?)\\]\\((.+?)\\)/g,'<a href="$2" target="_blank">$1</a>');html=html.replace(/^---$/gm,"<hr>");html=html.replace(/(<li>.*<\\/li>)/s,function(m){return"<ul>"+m+"</ul>"});html=html.replace(/\\n\\n/g,"</p><p>");html="<p>"+html+"</p>";html=html.replace(/<p>(<h[123]|<pre|<blockquote|<ul|<ol|<hr)/g,"$1");html=html.replace(/(<\\/h[123]>|<\\/pre>|<\\/blockquote>|<\\/ul>|<\\/ol>|<hr>)<\\/p>/g,"$1");return html}function updatePreview(){var md=document.getElementById("editor").value;document.getElementById("preview").innerHTML=parseMd(md);var chars=md.length;var words=md.trim()?md.trim().split(/\\s+/).length:0;var lines=md.split("\\n").length;document.getElementById("char-count").textContent=chars+" chars";document.getElementById("word-count").textContent=words+" words";document.getElementById("stat-lines").textContent=lines+" lines";document.getElementById("stat-reading").textContent=Math.max(1,Math.ceil(words/200))+" min read"}function insertMd(before,after){var ed=document.getElementById("editor");var start=ed.selectionStart;var end=ed.selectionEnd;var sel=ed.value.substring(start,end)||"text";ed.value=ed.value.substring(0,start)+before+sel+after+ed.value.substring(end);ed.focus();ed.selectionStart=start+before.length;ed.selectionEnd=start+before.length+sel.length;updatePreview()}function copyMd(){navigator.clipboard.writeText(document.getElementById("editor").value);alert("Markdown copied!")}function copyHtml(){navigator.clipboard.writeText(document.getElementById("preview").innerHTML);alert("HTML copied!")}updatePreview()</script></body></html>`;
+        return { title: 'Markdown Editor', type: 'Markdown Editor', code, stages: [
+            { name: 'Parser Architecture', agent: 'AGT-PARSE-101', desc: 'Building markdown → HTML parser engine.' },
+            { name: 'Split-Pane UI', agent: 'AGT-UI-202', desc: 'Creating editor/preview split view.' },
+            { name: 'Artifact Deployment', agent: 'NEXUS-BUILD-01', desc: 'Packaging markdown editor app.' }
+        ]};
+    }
+
+    // 💰 BUDGET TRACKER
+    static generateBudgetTracker(goalText) {
+        const code = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Budget Tracker</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh;padding:20px}.app{max-width:800px;margin:0 auto}.header{background:#fff;border-radius:12px;padding:20px 24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.header h1{font-size:22px;font-weight:700;margin-bottom:16px}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.summary-card{padding:16px;border-radius:10px;text-align:center}.summary-card.income{background:#ecfdf5;border:1px solid #a7f3d0}.summary-card.expense{background:#fef2f2;border:1px solid #fecaca}.summary-card.balance{background:#eff6ff;border:1px solid #bfdbfe}.summary-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:4px}.summary-value{font-size:24px;font-weight:800}.summary-card.income .summary-value{color:#059669}.summary-card.expense .summary-value{color:#dc2626}.summary-card.balance .summary-value{color:#2563eb}.add-form{background:#fff;border-radius:12px;padding:20px 24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.form-row{display:flex;gap:8px;align-items:end;flex-wrap:wrap}.form-group{flex:1;min-width:120px}.form-group label{display:block;font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;text-transform:uppercase}.form-group input,.form-group select{width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#f8fafc}.form-group input:focus,.form-group select:focus{outline:none;border-color:#3b82f6}.type-toggle{display:flex;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-top:18px}.type-toggle button{flex:1;padding:8px 12px;border:none;background:#f8fafc;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}.type-toggle button.active-income{background:#059669;color:#fff}.type-toggle button.active-expense{background:#dc2626;color:#fff}.add-btn{margin-top:18px;padding:8px 24px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;transition:all .2s;white-space:nowrap}.add-btn:hover{background:#2563eb}.transactions{background:#fff;border-radius:12px;padding:20px 24px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.transactions h3{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}.filter-pills{display:flex;gap:4px}.filter-pill{padding:4px 10px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}.filter-pill.active{background:#3b82f6;color:#fff;border-color:#3b82f6}.tx-list{list-style:none}.tx-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid #f1f5f9;transition:background .15s}.tx-item:hover{background:#f8fafc}.tx-info{display:flex;align-items:center;gap:10px}.tx-cat{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}.tx-desc{font-size:13px;font-weight:600;color:#1e293b}.tx-category{font-size:11px;color:#94a3b8}.tx-amount{font-size:14px;font-weight:700}.tx-amount.income{color:#059669}.tx-amount.expense{color:#dc2626}.tx-delete{width:24px;height:24px;border-radius:50%;border:none;background:transparent;color:#94a3b8;cursor:pointer;margin-left:8px;font-size:14px;opacity:0;transition:all .2s}.tx-item:hover .tx-delete{opacity:1}.tx-delete:hover{background:#fee2e2;color:#dc2626}.empty-state{text-align:center;padding:40px;color:#94a3b8;font-size:13px}@media(max-width:640px){.summary{grid-template-columns:1fr}.form-row{flex-direction:column}}</style></head><body><div class="app"><div class="header"><h1>💰 Budget Tracker</h1><div class="summary"><div class="summary-card income"><div class="summary-label">Total Income</div><div class="summary-value" id="total-income">$0</div></div><div class="summary-card expense"><div class="summary-label">Total Expenses</div><div class="summary-value" id="total-expense">$0</div></div><div class="summary-card balance"><div class="summary-label">Net Balance</div><div class="summary-value" id="total-balance">$0</div></div></div></div><div class="add-form"><div class="form-row"><div class="form-group"><label>Description</label><input id="tx-desc" placeholder="e.g. Grocery shopping"></div><div class="form-group"><label>Amount ($)</label><input type="number" id="tx-amount" placeholder="0.00" min="0" step="0.01"></div><div class="form-group"><label>Category</label><select id="tx-cat"><option value="food">🍕 Food</option><option value="transport">🚗 Transport</option><option value="shopping">🛍 Shopping</option><option value="bills">📄 Bills</option><option value="salary">💼 Salary</option><option value="freelance">💻 Freelance</option><option value="investment">📈 Investment</option><option value="other">📦 Other</option></select></div><div class="type-toggle" id="type-toggle"><button class="active-income" id="btn-income" onclick="setType('income')">Income</button><button id="btn-expense" onclick="setType('expense')">Expense</button></div><button class="add-btn" onclick="addTransaction()">+ Add</button></div></div><div class="transactions"><h3>Transactions <div class="filter-pills"><button class="filter-pill active" data-filter="all" onclick="setFilter('all',this)">All</button><button class="filter-pill" data-filter="income" onclick="setFilter('income',this)">Income</button><button class="filter-pill" data-filter="expense" onclick="setFilter('expense',this)">Expense</button></div></h3><ul class="tx-list" id="tx-list"></ul></div></div><script>var txType="income";var filter="all";var catIcons={food:"🍕",transport:"🚗",shopping:"🛍",bills:"📄",salary:"💼",freelance:"💻",investment:"📈",other:"📦"};var catColors={food:"#fef3c7",transport:"#dbeafe",shopping:"#fce7f3",bills:"#f1f5f9",salary:"#ecfdf5",freelance:"#ede9fe",investment:"#ecfdf5",other:"#f1f5f9"};var transactions=[{id:1,desc:"Monthly Salary",amount:5000,type:"income",cat:"salary"},{id:2,desc:"Grocery Store",amount:120.50,type:"expense",cat:"food"},{id:3,desc:"Gas Station",amount:45,type:"expense",cat:"transport"},{id:4,desc:"Freelance Project",amount:800,type:"income",cat:"freelance"},{id:5,desc:"Electric Bill",amount:95,type:"expense",cat:"bills"}];var nextId=6;function setType(t){txType=t;document.getElementById("btn-income").className=t==="income"?"active-income":"";document.getElementById("btn-expense").className=t==="expense"?"active-expense":""}function setFilter(f,btn){filter=f;document.querySelectorAll(".filter-pill").forEach(function(p){p.classList.remove("active")});btn.classList.add("active");render()}function addTransaction(){var desc=document.getElementById("tx-desc").value.trim();var amount=parseFloat(document.getElementById("tx-amount").value);var cat=document.getElementById("tx-cat").value;if(!desc||!amount||amount<=0)return;transactions.unshift({id:nextId++,desc:desc,amount:amount,type:txType,cat:cat});document.getElementById("tx-desc").value="";document.getElementById("tx-amount").value="";render()}function deleteTransaction(id){transactions=transactions.filter(function(t){return t.id!==id});render()}function render(){var income=transactions.filter(function(t){return t.type==="income"}).reduce(function(a,t){return a+t.amount},0);var expense=transactions.filter(function(t){return t.type==="expense"}).reduce(function(a,t){return a+t.amount},0);document.getElementById("total-income").textContent="$"+income.toLocaleString("en-US",{minimumFractionDigits:2});document.getElementById("total-expense").textContent="$"+expense.toLocaleString("en-US",{minimumFractionDigits:2});document.getElementById("total-balance").textContent="$"+(income-expense).toLocaleString("en-US",{minimumFractionDigits:2});var list=document.getElementById("tx-list");var filtered=filter==="all"?transactions:transactions.filter(function(t){return t.type===filter});if(filtered.length===0){list.innerHTML='<div class="empty-state">No transactions yet. Add one above!</div>';return}list.innerHTML="";filtered.forEach(function(t){var li=document.createElement("li");li.className="tx-item";li.innerHTML='<div class="tx-info"><div class="tx-cat" style="background:'+(catColors[t.cat]||"#f1f5f9")+'">'+(catIcons[t.cat]||"📦")+'</div><div><div class="tx-desc">'+t.desc+'</div><div class="tx-category">'+t.cat.charAt(0).toUpperCase()+t.cat.slice(1)+"</div></div></div>"+'<div style="display:flex;align-items:center"><span class="tx-amount '+t.type+'">'+(t.type==="income"?"+":"-")+"$"+t.amount.toFixed(2)+'</span><button class="tx-delete" onclick="deleteTransaction('+t.id+')">×</button></div>';list.appendChild(li)})}render()</script></body></html>`;
+        return { title: 'Budget Tracker', type: 'Budget Tracker', code, stages: [
+            { name: 'Financial Model Architecture', agent: 'AGT-FIN-101', desc: 'Building income/expense data model.' },
+            { name: 'Transaction UI Components', agent: 'AGT-UI-202', desc: 'Creating transaction list and summary cards.' },
+            { name: 'Artifact Deployment', agent: 'NEXUS-BUILD-01', desc: 'Packaging budget tracker app.' }
+        ]};
+    }
+
+    // Stub generators for remaining types (these route to a smart dynamic app for now)
+    static generateSurveyQuiz(goalText) { return this._smartApp(goalText, 'Survey & Quiz App', '📊', 'quiz'); }
+    static generatePortfolio(goalText) { return this._smartApp(goalText, 'Portfolio Website', '🎨', 'portfolio'); }
+    static generateEcommerce(goalText) { return this._smartApp(goalText, 'E-Commerce Store', '🛒', 'ecommerce'); }
+    static generateCalendar(goalText) { return this._smartApp(goalText, 'Calendar Scheduler', '📅', 'calendar'); }
+    static generateImageGallery(goalText) { return this._smartApp(goalText, 'Image Gallery', '🖼', 'gallery'); }
+    static generateInvoice(goalText) { return this._smartApp(goalText, 'Invoice Generator', '🧾', 'invoice'); }
+    static generateRecipeApp(goalText) { return this._smartApp(goalText, 'Recipe Cookbook', '🍳', 'recipe'); }
+    static generateFitnessTracker(goalText) { return this._smartApp(goalText, 'Fitness Tracker', '💪', 'fitness'); }
+
+    // Smart dynamic app builder for types without a full custom generator yet
+    static _smartApp(goalText, title, icon, type) {
+        const accentColors = { quiz:'#8b5cf6', portfolio:'#0891b2', ecommerce:'#059669', calendar:'#3b82f6', gallery:'#f97316', invoice:'#64748b', recipe:'#d97706', fitness:'#ef4444' };
+        const accent = accentColors[type] || '#3b82f6';
+        const code = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${title}</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.app{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);max-width:520px;width:100%;padding:40px;text-align:center}.icon{font-size:56px;margin-bottom:16px}.title{font-size:26px;font-weight:800;color:#0f172a;margin-bottom:8px}.desc{color:#64748b;font-size:14px;line-height:1.6;margin-bottom:24px}.goal-text{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;font-size:13px;color:#334155;text-align:left;margin-bottom:24px;line-height:1.6}.goal-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;margin-bottom:6px}.features{text-align:left;margin-bottom:24px}.feature-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:13px;color:#334155}.feature-check{width:24px;height:24px;border-radius:50%;background:${accent}15;color:${accent};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}.status{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:${accent}10;color:${accent};border-radius:8px;font-size:12px;font-weight:700}.status-dot{width:8px;height:8px;border-radius:50%;background:${accent};animation:pulse 1.5s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}</style></head><body><div class="app"><div class="icon">${icon}</div><h1 class="title">${title}</h1><p class="desc">This ${type} application was generated by the AI Agent Swarm. It is being actively developed by the swarm's specialized factories.</p><div class="goal-text"><div class="goal-label">Original Goal</div>"${goalText}"</div><div class="features"><div class="feature-item"><div class="feature-check">✓</div>Core architecture designed</div><div class="feature-item"><div class="feature-check">✓</div>UI components scaffolded</div><div class="feature-item"><div class="feature-check">✓</div>State management configured</div><div class="feature-item"><div class="feature-check">✓</div>Interactive features wired</div><div class="feature-item"><div class="feature-check">✓</div>Responsive layout applied</div></div><div class="status"><div class="status-dot"></div>Swarm Active — Building Full Application</div></div></body></html>`;
+        return { title, type: title, code, stages: [
+            { name: 'Requirements Analysis', agent: 'AGT-ARCH-101', desc: 'Analyzing goal requirements and constraints.' },
+            { name: 'Core Logic Synthesis', agent: 'AGT-DEV-202', desc: 'Implementing core application logic.' },
+            { name: 'UI Assembly', agent: 'AGT-UI-303', desc: 'Building responsive user interface.' },
+            { name: 'Artifact Deployment', agent: 'NEXUS-BUILD-01', desc: 'Packaging standalone application.' }
+        ]};
+    }
 }
 
 // ==========================================
@@ -1952,35 +2326,11 @@ class AgentUniverse {
     }
 
     init() {
-        // Load initial industries
-        INITIAL_INDUSTRIES.forEach(d => this.industries.push(new Industry(d)));
-
-        // Initial agent distribution across factories
-        let initialDeployed = 0;
-        this.industries.forEach(ind => {
-            ind.factories.forEach(fac => {
-                const count = randomInt(SIM_CONFIG.factoryInitialAgentsMin, SIM_CONFIG.factoryInitialAgentsMax);
-                this.bench.deploy(count, fac.id);
-                initialDeployed += count;
-            });
-        });
-
-        // Add Smartwatch & Calculator starting goals
-        this.addGoal({
-            text: 'make a smartwatch',
-            priority: 'P1',
-            mode: 'auto',
-            subtaskCount: 600
-        });
-
-        this.addGoal({
-            text: 'make a small calculator',
-            priority: 'P2',
-            mode: 'auto',
-            subtaskCount: 400
-        });
-
-        this.eventLog.log('system', `Agent Universe online. 6 Industries, ${this.getAllFactories().length} Factories, 1 Crore AI Agent bench.`);
+        // Clean slate: 0 hardcoded industries, 0 auto-goals on boot.
+        // 1 Crore AI agents are free and ready in the reserve bench.
+        // Industries and factories are dynamically decomposed and created when goals are set!
+        this.eventLog.log('system', `Agent Universe initialized: 1,00,00,000 AI agents free in reserve bench.`);
+        this.eventLog.log('system', `Ready for instructions. Set a goal above to decompose task tree and mobilize swarms.`);
 
         this.loop();
         this.renderer.init();
@@ -2017,7 +2367,7 @@ class AgentUniverse {
     }
 
     addGoal(config) {
-        // Auto unpause
+        // Auto unpause if paused
         if (this.paused) {
             this.paused = false;
             const stopBtn = document.getElementById('btn-emergency-stop');
@@ -2025,32 +2375,61 @@ class AgentUniverse {
             this.eventLog.log('alert', 'Simulation auto-resumed to execute goal.');
         }
 
+        // 1. Intelligent Goal Decomposition into Task Tree
+        const decomp = GoalDecomposer.decompose(config.text);
+        config.decomposition = decomp;
+        config.subtaskCount = config.subtaskCount || (decomp.totalFactories * 150);
+
         const goal = new Goal(config);
         this.goals.unshift(goal);
 
-        // Auto or manual allocation
-        if (goal.mode === 'manual' && goal.manualAgentCount > 0) {
-            const targetFac = goal.targetFactoryId ? this.getFactory(goal.targetFactoryId) : randomChoice(this.getAllFactories());
-            if (targetFac) {
-                this.bench.deploy(goal.manualAgentCount, targetFac.id);
-                this.eventLog.log('deploy', `Manually deployed ${formatNumber(goal.manualAgentCount)} agents to [${targetFac.name}] for goal "${goal.text}".`);
+        // 2. Dynamically spawn or link decomposed Industries & Factories
+        let totalDeployed = 0;
+        decomp.industries.forEach(indTpl => {
+            let industry = this.industries.find(i => i.name.toLowerCase() === indTpl.name.toLowerCase());
+            if (!industry) {
+                industry = new Industry({
+                    name: indTpl.name,
+                    icon: indTpl.icon,
+                    color: indTpl.color,
+                    description: indTpl.description,
+                    factories: []
+                });
+                this.industries.push(industry);
             }
-        } else {
-            // Auto deployment based on complexity
-            const factories = this.getAllFactories();
-            if (factories.length > 0) {
-                const autoCount = goal.text.includes('smartwatch') ? 8000 : 3000;
-                const perFac = Math.ceil(autoCount / factories.length);
-                factories.forEach(f => this.bench.deploy(perFac, f.id));
-                this.eventLog.log('deploy', `Auto-scaled swarm: allocated ${formatNumber(autoCount)} agents from bench for "${goal.text}".`);
-            }
-        }
+
+            indTpl.factories.forEach(facTpl => {
+                let factory = industry.factories.find(f => f.name.toLowerCase() === facTpl.name.toLowerCase());
+                if (!factory) {
+                    factory = new Factory(industry.id, {
+                        name: facTpl.name,
+                        goal: facTpl.goal
+                    });
+                    industry.factories.push(factory);
+                }
+
+                // Deploy agents from bench pool
+                const agentQuota = config.mode === 'manual' && config.manualAgentCount > 0 
+                    ? Math.max(10, Math.floor(config.manualAgentCount / Math.max(1, decomp.totalFactories)))
+                    : randomInt(800, 2000);
+
+                this.bench.deploy(agentQuota, factory.id);
+                totalDeployed += agentQuota;
+
+                // Prime the factory with contextual tasks
+                for (let i = 0; i < 3; i++) {
+                    factory.generateTask();
+                }
+            });
+        });
 
         if (config.convergence) {
             this.enterConvergenceMode(goal);
         }
 
-        this.eventLog.log('system', `Goal launched: "${goal.text}" — Interactive artifact being built.`);
+        this.eventLog.log('deploy', `🎯 Task Tree decomposed: "${goal.text}" → ${decomp.industries.length} Major Branches, ${decomp.totalFactories} Subtask Factories (${formatNumber(totalDeployed)} agents deployed).`);
+        if (this.renderer) this.renderer.populateFactoryDropdowns();
+        
         return goal;
     }
 
@@ -2559,6 +2938,63 @@ class Renderer {
                     this.universe.bench.recall(idle);
                 }
             }
+
+            // View Task Tree
+            if (e.target.id === 'btn-view-active-tree') {
+                this.switchView('task-tree');
+                return;
+            }
+            const treeGoalBtn = e.target.closest('.btn-view-tree-goal');
+            if (treeGoalBtn) {
+                const goalId = treeGoalBtn.dataset.goalId;
+                this.switchView('task-tree');
+                const sel = document.getElementById('tree-goal-selector');
+                if (sel) {
+                    sel.value = goalId;
+                    this.renderTaskTreeView();
+                }
+                return;
+            }
+
+            // View Suggestions
+            if (e.target.id === 'btn-browse-suggestions-main' || e.target.id === 'btn-view-suggestions-from-hub') {
+                this.switchView('suggestions');
+                return;
+            }
+            if (e.target.id === 'btn-add-custom-industry-from-sugg') {
+                this.showCustomizeModal('new-industry');
+                return;
+            }
+
+            // Deploy Suggested Template
+            const suggDeployBtn = e.target.closest('.btn-deploy-suggestion');
+            if (suggDeployBtn) {
+                const idx = parseInt(suggDeployBtn.dataset.templateIndex);
+                const tpl = SUGGESTED_TEMPLATES[idx];
+                if (tpl) {
+                    const ind = new Industry({
+                        name: tpl.name,
+                        icon: tpl.icon,
+                        color: tpl.color,
+                        description: tpl.desc,
+                        factories: []
+                    });
+                    this.universe.industries.push(ind);
+                    tpl.factories.forEach(facName => {
+                        const fac = new Factory(ind.id, {
+                            name: facName,
+                            goal: `Execute ${facName.toLowerCase()} pipeline tasks`
+                        });
+                        ind.factories.push(fac);
+                        this.universe.bench.deploy(100, fac.id);
+                        for (let i = 0; i < 3; i++) fac.generateTask();
+                    });
+                    this.universe.eventLog.log('deploy', `Template deployed: [${tpl.icon} ${tpl.name}] with ${tpl.factories.length} factories and ${tpl.factories.length * 100} agents.`);
+                    this.populateFactoryDropdowns();
+                    this.switchView('industries-hub');
+                }
+                return;
+            }
         });
 
         // Quick goal Enter key
@@ -2573,6 +3009,11 @@ class Renderer {
             this.universe.simSpeed = parseFloat(e.target.value);
             const lbl = document.getElementById('sim-speed-label');
             if (lbl) lbl.textContent = this.universe.simSpeed + 'x';
+        });
+
+        // Tree Goal Selector Change
+        document.getElementById('tree-goal-selector')?.addEventListener('change', () => {
+            this.renderTaskTreeView();
         });
 
         // Goal modal scope change
@@ -2597,9 +3038,15 @@ class Renderer {
 
         if (view === 'universe') {
             document.getElementById('universe-view')?.classList.add('active-view');
+        } else if (view === 'task-tree') {
+            document.getElementById('task-tree-view')?.classList.add('active-view');
+            this.renderTaskTreeView();
         } else if (view === 'industries-hub') {
             document.getElementById('industries-hub-view')?.classList.add('active-view');
             this.renderIndustriesHub();
+        } else if (view === 'suggestions') {
+            document.getElementById('suggestions-view')?.classList.add('active-view');
+            this.renderSuggestionsView();
         } else if (view === 'apps-gallery') {
             document.getElementById('apps-gallery-view')?.classList.add('active-view');
             if (this.universe.goals.length > 0 && !this._currentModalArtifact) {
@@ -2636,8 +3083,12 @@ class Renderer {
 
         if (this.currentView === 'universe') {
             this.renderUniverseView();
+        } else if (this.currentView === 'task-tree') {
+            this.renderTaskTreeView();
         } else if (this.currentView === 'industries-hub') {
             this.renderIndustriesHub();
+        } else if (this.currentView === 'suggestions') {
+            this.renderSuggestionsView();
         } else if (this.currentView === 'apps-gallery') {
             this.renderAppsGallery();
         } else if (this.currentView === 'telemetry') {
@@ -2676,7 +3127,7 @@ class Renderer {
         this.universe.bench.deployQueue.forEach(q => deploying += q.count);
         this.safeSetText('bench-deploying', formatNumber(deploying));
 
-        const pct = (stats.activeAgents / stats.totalAgents) * 100;
+        const pct = stats.totalAgents > 0 ? (stats.activeAgents / stats.totalAgents) * 100 : 0;
         const fill = document.getElementById('bench-bar');
         if (fill) fill.style.width = Math.min(100, Math.max(1, pct)) + '%';
         this.safeSetText('bench-pct', pct.toFixed(3) + '% active');
@@ -2697,6 +3148,9 @@ class Renderer {
                   <span class="ind-nav-count">${formatCompact(s.agents)}</span>
                 </button>`;
             });
+            if (this.universe.industries.length === 0) {
+                html = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;text-align:center;">No active industries.<br>Deploy a goal or browse suggestions!</div>';
+            }
             container.innerHTML = html;
         }
     }
@@ -2723,8 +3177,16 @@ class Renderer {
         if (goalsContainer) {
             if (this.universe.goals.length === 0) {
                 goalsContainer.innerHTML = `
-                <div class="goal-card-white" style="justify-content:center;color:var(--text-muted);font-weight:500;padding:24px;">
-                  No goals currently deployed. Type what you want to build above to deploy the AI Swarm!
+                <div class="clean-slate-card">
+                  <div class="clean-slate-icon">✨</div>
+                  <h4 class="clean-slate-title">Clean Slate: 1 Crore AI Agents Ready</h4>
+                  <p class="clean-slate-desc">No goals currently running. Type what you want the AI swarm to build in the bar above, or click one of the quick templates below to automatically decompose into task branches!</p>
+                  <div class="clean-slate-actions">
+                    <button class="btn btn-sm btn-primary sugg-chip" data-goal="build a video creator studio app">🎬 Video Creator</button>
+                    <button class="btn btn-sm btn-primary sugg-chip" data-goal="make a small calculator">🧮 Calculator</button>
+                    <button class="btn btn-sm btn-primary sugg-chip" data-goal="make a smartwatch">⌚ Smartwatch OS</button>
+                    <button class="btn btn-sm btn-outline-primary" id="btn-browse-suggestions-main">💡 Explore Suggestions</button>
+                  </div>
                 </div>`;
             } else {
                 let html = '';
@@ -2740,6 +3202,8 @@ class Renderer {
                           <span style="font-weight:700;color:var(--accent-blue)">[${goal.mode.toUpperCase()}${goal.manualAgentCount ? ': ' + formatNumber(goal.manualAgentCount) + ' AGTS' : ''}]</span>
                           <span>•</span>
                           <span>${formatNumber(Math.round(goal.completedSubtasks))}/${formatNumber(goal.subtaskCount)} subtasks</span>
+                          <span>•</span>
+                          <span>${goal.decomposition ? goal.decomposition.industries.length + ' Branches' : 'Auto'}</span>
                         </div>
                         <div>
                           <span class="goal-stage-pill ${isDone ? 'done' : ''}">
@@ -2754,6 +3218,9 @@ class Renderer {
                         <span class="goal-pct-text">${goal.progress.toFixed(1)}%</span>
                       </div>
                       <div class="goal-actions-wrap">
+                        <button class="btn btn-sm btn-outline-primary btn-view-tree-goal" data-goal-id="${goal.id}" title="Inspect hierarchical task tree">
+                          🌳 Task Tree
+                        </button>
                         <button class="btn btn-sm btn-success btn-open-app-modal" data-goal-id="${goal.id}">
                           🎮 Open App
                         </button>
@@ -2771,49 +3238,248 @@ class Renderer {
         // Render Industry Ecosystems
         const indGrid = document.getElementById('industries-grid');
         if (indGrid) {
-            let html = '';
-            this.universe.industries.forEach(ind => {
-                const s = ind.getStats();
+            if (this.universe.industries.length === 0) {
+                indGrid.innerHTML = `
+                <div class="clean-slate-card" style="grid-column: 1/-1;">
+                  <div class="clean-slate-icon">🏭</div>
+                  <h4 class="clean-slate-title">No Active Industries Yet</h4>
+                  <p class="clean-slate-desc">Industries represent the major task branches. When you set a goal, the AI Swarm automatically creates the required branches, or you can add them from suggested templates!</p>
+                  <div class="clean-slate-actions">
+                    <button class="btn btn-primary" id="btn-browse-suggestions-main">💡 Browse Industry Suggestions</button>
+                    <button class="btn btn-outline-primary" id="btn-add-industry-main">+ Custom Industry</button>
+                  </div>
+                </div>`;
+            } else {
+                let html = '';
+                this.universe.industries.forEach(ind => {
+                    const s = ind.getStats();
+                    html += `
+                    <div class="industry-card-white" data-industry-id="${ind.id}">
+                      <div class="ind-card-header">
+                        <div class="ind-card-title-group">
+                          <span class="ind-card-icon">${ind.icon}</span>
+                          <h4 class="ind-card-name">${ind.name}</h4>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary btn-edit-industry" data-industry-id="${ind.id}">✎ Edit</button>
+                      </div>
+                      <p class="ind-card-desc">${ind.description}</p>
+                      <div class="ind-card-metrics-grid">
+                        <div class="ind-metric-item">
+                          <div class="ind-metric-val mono">${formatNumber(s.agents)}</div>
+                          <div class="ind-metric-lbl">Active Agents</div>
+                        </div>
+                        <div class="ind-metric-item">
+                          <div class="ind-metric-val mono">${formatNumber(s.tasks)}</div>
+                          <div class="ind-metric-lbl">Completed</div>
+                        </div>
+                        <div class="ind-metric-item">
+                          <div class="ind-metric-val mono">${Math.floor(s.throughput)}/m</div>
+                          <div class="ind-metric-lbl">Throughput</div>
+                        </div>
+                        <div class="ind-metric-item">
+                          <div class="ind-metric-val mono">${s.factoriesCount}</div>
+                          <div class="ind-metric-lbl">Factories</div>
+                        </div>
+                      </div>
+                      <div class="ind-card-footer-flex">
+                        <span class="view-factories-link">Explore ${s.factoriesCount} Factories →</span>
+                      </div>
+                    </div>`;
+                });
+                indGrid.innerHTML = html;
+            }
+        }
+    }
+
+    renderTaskTreeView() {
+        const container = document.getElementById('task-tree-container');
+        if (!container) return;
+
+        // Populate selector
+        const selector = document.getElementById('tree-goal-selector');
+        if (selector) {
+            let selHtml = '';
+            this.universe.goals.forEach(g => {
+                selHtml += `<option value="${g.id}">🎯 ${g.text} (${g.progress.toFixed(0)}%)</option>`;
+            });
+            if (this.universe.goals.length === 0) {
+                selHtml = '<option value="">No Active Goals</option>';
+            }
+            if (!selector.dataset.initialized || selector.children.length !== this.universe.goals.length) {
+                const currentVal = selector.value;
+                selector.innerHTML = selHtml;
+                if (currentVal) selector.value = currentVal;
+                selector.dataset.initialized = 'true';
+            }
+        }
+
+        const selectedGoalId = selector ? selector.value : null;
+        const goal = (selectedGoalId ? this.universe.goals.find(g => g.id === selectedGoalId) : null) || this.universe.goals[0];
+
+        if (!goal) {
+            container.innerHTML = `
+            <div class="clean-slate-card">
+              <div class="clean-slate-icon">🌳</div>
+              <h3 class="clean-slate-title">No Goal Decomposed Yet</h3>
+              <p class="clean-slate-desc">Set a goal to watch the AI swarm decompose your major objective into Main Branches (Industries), Sub-Tasks (Factories), and assign specialized AI agents!</p>
+              <div class="clean-slate-actions">
+                <button class="btn btn-primary" onclick="document.getElementById('tab-universe').click()">🚀 Deploy a Swarm Goal</button>
+              </div>
+            </div>`;
+            return;
+        }
+
+        const isDone = goal.progress >= 100;
+        const decomp = goal.decomposition || GoalDecomposer.decompose(goal.text);
+        const stats = this.universe.getGlobalStats();
+
+        let html = `
+        <!-- Root Goal Node -->
+        <div class="tree-root-card">
+          <div class="tree-root-header">
+            <div class="tree-root-title-group">
+              <div class="tree-root-icon">🎯</div>
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <h3 class="tree-root-title">${goal.text}</h3>
+                  <span class="goal-priority-badge prio-${goal.priority.toLowerCase()}">${isDone ? 'COMPLETED' : goal.priority}</span>
+                </div>
+                <p class="tree-root-meta">
+                  Decomposed into <strong>${decomp.industries.length} Major Branches</strong> • <strong>${decomp.totalFactories} Subtask Factories</strong> • <strong>${formatNumber(Math.round(goal.completedSubtasks))}/${formatNumber(goal.subtaskCount)} subtasks</strong>
+                </p>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-sm btn-success btn-open-app-modal" data-goal-id="${goal.id}">🎮 Test App Artifact</button>
+              <button class="btn btn-sm btn-outline-primary btn-open-standalone-tab" data-goal-id="${goal.id}">↗ Standalone Tab</button>
+            </div>
+          </div>
+          <div class="goal-progress-box">
+            <div class="goal-bar-track">
+              <div class="goal-bar-fill" style="width:${goal.progress}%"></div>
+            </div>
+            <span class="goal-pct-text">${goal.progress.toFixed(1)}%</span>
+          </div>
+        </div>
+
+        <!-- Major Task Branches (Industries) -->
+        <div class="tree-branches-grid">`;
+
+        decomp.industries.forEach((indTpl, indIdx) => {
+            const industry = this.universe.industries.find(i => i.name.toLowerCase() === indTpl.name.toLowerCase());
+            const indStats = industry ? industry.getStats() : { agents: 0, tasks: 0, throughput: 0 };
+            
+            html += `
+            <div class="tree-branch-card" style="border-top: 4px solid ${indTpl.color};">
+              <div class="tree-branch-header">
+                <div class="tree-branch-title-group">
+                  <span class="tree-branch-icon">${indTpl.icon}</span>
+                  <div>
+                    <h4 class="tree-branch-name">${indTpl.name}</h4>
+                    <span style="font-size:11px;color:var(--text-muted);">${indTpl.description}</span>
+                  </div>
+                </div>
+                <span class="tree-branch-badge">${formatCompact(indStats.agents)} agents</span>
+              </div>
+
+              <!-- Sub-Tasks (Factories) in this branch -->
+              <div class="tree-factories-list">`;
+
+            indTpl.factories.forEach((facTpl, facIdx) => {
+                const factory = industry ? industry.factories.find(f => f.name.toLowerCase() === facTpl.name.toLowerCase()) : null;
+                const facAgents = factory ? factory.agents.length : 0;
+                const facActiveTasks = factory ? factory.activeTasks.length : 0;
+                const facCompleted = factory ? factory.metrics.tasksCompleted : 0;
+                const facThroughput = factory ? Math.floor(factory.metrics.throughput) : 0;
+
+                // Thinking agents sample
+                const activeAgent = factory && factory.agents.length > 0 ? factory.agents[0] : null;
+                const agentThinkingText = activeAgent && activeAgent.currentTask ? activeAgent.currentTask.name : 'Analyzing & executing sub-goal...';
+
                 html += `
-                <div class="industry-card-white" data-industry-id="${ind.id}">
-                  <div class="ind-card-header">
-                    <div class="ind-card-title-group">
-                      <span class="ind-card-icon">${ind.icon}</span>
-                      <h4 class="ind-card-name">${ind.name}</h4>
-                    </div>
-                    <button class="btn btn-sm btn-outline-secondary btn-edit-industry" data-industry-id="${ind.id}">✎ Edit</button>
+                <div class="tree-subtask-item">
+                  <div class="tree-subtask-header">
+                    <span class="tree-subtask-name">⚙️ ${facTpl.name}</span>
+                    <span class="tree-subtask-agents">👥 ${formatCompact(facAgents)}</span>
                   </div>
-                  <p class="ind-card-desc">${ind.description}</p>
-                  <div class="ind-card-metrics-grid">
-                    <div class="ind-metric-item">
-                      <div class="ind-metric-val mono">${formatNumber(s.agents)}</div>
-                      <div class="ind-metric-lbl">Active Agents</div>
+                  <p class="tree-subtask-goal">🎯 ${facTpl.goal}</p>
+                  
+                  <div class="tree-agent-pulse-row">
+                    <div style="display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                      <span class="thinking-pulse-dot"></span>
+                      <span style="font-size:11px;color:var(--text-body);font-weight:500;">${agentThinkingText}</span>
                     </div>
-                    <div class="ind-metric-item">
-                      <div class="ind-metric-val mono">${formatNumber(s.tasks)}</div>
-                      <div class="ind-metric-lbl">Completed</div>
-                    </div>
-                    <div class="ind-metric-item">
-                      <div class="ind-metric-val mono">${Math.floor(s.throughput)}/m</div>
-                      <div class="ind-metric-lbl">Throughput</div>
-                    </div>
-                    <div class="ind-metric-item">
-                      <div class="ind-metric-val mono">${s.factoriesCount}</div>
-                      <div class="ind-metric-lbl">Factories</div>
-                    </div>
-                  </div>
-                  <div class="ind-card-footer-flex">
-                    <span class="view-factories-link">Explore ${s.factoriesCount} Factories →</span>
+                    <span class="mono" style="font-size:10px;color:var(--text-muted);">${facCompleted} done (${facThroughput}/m)</span>
                   </div>
                 </div>`;
             });
-            indGrid.innerHTML = html;
-        }
+
+            html += `
+              </div>
+            </div>`;
+        });
+
+        html += `</div>`;
+        container.innerHTML = html;
+    }
+
+    renderSuggestionsView() {
+        const grid = document.getElementById('suggestions-catalog-grid');
+        if (!grid) return;
+
+        let html = '';
+        SUGGESTED_TEMPLATES.forEach((tpl, idx) => {
+            const isAlreadyAdded = this.universe.industries.some(i => i.name.toLowerCase() === tpl.name.toLowerCase());
+            
+            html += `
+            <div class="suggestion-card" style="border-top: 3px solid ${tpl.color};">
+              <div>
+                <div class="sugg-card-header">
+                  <span class="sugg-card-icon" style="background:${tpl.color}15;color:${tpl.color};">${tpl.icon}</span>
+                  <div>
+                    <h4 class="sugg-card-title">${tpl.name}</h4>
+                    <span style="font-size:11px;color:var(--text-muted);">${tpl.factories.length} specialized factories</span>
+                  </div>
+                </div>
+                <p class="sugg-card-desc" style="margin-top:10px;">${tpl.desc}</p>
+                
+                <div class="sugg-factories-wrap" style="margin-top:14px;">
+                  <span class="sugg-factories-label">Included Factories:</span>
+                  <div class="sugg-factory-pills">
+                    ${tpl.factories.map(f => `<span class="sugg-factory-pill">${f}</span>`).join('')}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <button class="sugg-deploy-btn btn-deploy-suggestion" data-template-index="${idx}">
+                  ${isAlreadyAdded ? '✓ Added (Click to add more workers)' : '➕ Add to Active Swarm (+400 Agents)'}
+                </button>
+              </div>
+            </div>`;
+        });
+
+        grid.innerHTML = html;
     }
 
     renderIndustriesHub() {
         const container = document.getElementById('all-industries-factories-container');
         if (!container) return;
+
+        if (this.universe.industries.length === 0) {
+            container.innerHTML = `
+            <div class="clean-slate-card">
+              <div class="clean-slate-icon">🏭</div>
+              <h3 class="clean-slate-title">No Active Industries</h3>
+              <p class="clean-slate-desc">Your swarm has 1 Crore free agents ready. Set a goal or add an industry from the suggested templates below!</p>
+              <div class="clean-slate-actions">
+                <button class="btn btn-primary" onclick="document.getElementById('tab-suggestions').click()">💡 Browse Suggested Templates</button>
+                <button class="btn btn-outline-primary" id="btn-add-industry-hub">+ Custom Industry</button>
+              </div>
+            </div>`;
+            return;
+        }
+
         let html = '';
         this.universe.industries.forEach(ind => {
             const s = ind.getStats();
