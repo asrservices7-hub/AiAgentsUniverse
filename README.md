@@ -1,6 +1,13 @@
 # 🌐 Agent Universe
 
-A massive-scale AI agent management ecosystem and autonomous application builder. Manage 1 Crore AI agents across 6 specialized industries and 22+ factories, with instant goal synthesis, live interactive sandbox app generation, auto/manual swarm scaling, and universal convergence mode.
+A massive-scale AI agent management ecosystem and autonomous application builder. Manage 1 Crore AI agents with intelligent task decomposition, dynamic swarm sizing, live interactive sandbox app generation, and automatic agent recall.
+
+---
+
+## 🔗 Live Deployment URLs
+
+- **Netlify (Live Production)**: [https://aiagentsuniverse.netlify.app/](https://aiagentsuniverse.netlify.app/)
+- **Render (Live Web Service)**: [https://aiagentsuniverse.onrender.com/](https://aiagentsuniverse.onrender.com/)
 
 ---
 
