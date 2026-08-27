@@ -7,8 +7,16 @@
     "start": "node server.js",
     "dev": "node server.js"
   },
-  "keywords": ["ai", "agents", "swarm", "simulation", "render"],
+  "keywords": [
+    "ai",
+    "agents",
+    "swarm",
+    "simulation",
+    "render"
+  ],
   "author": "Antigravity",
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {
+    "jsdom": "^30.0.1"
+  }
 }

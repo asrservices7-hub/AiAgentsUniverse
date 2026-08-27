@@ -45,6 +45,575 @@ const weightedRandom = (weights) => {
 };
 
 // ==========================================
+// DYNAMIC APP GENERATION & SETTINGS
+// ==========================================
+
+class SettingsManager {
+    static init() {
+        const key = localStorage.getItem('gemini_api_key');
+        const keyInput = document.getElementById('gemini-api-key');
+        if (key && keyInput) {
+            keyInput.value = key;
+        }
+        this.updateUIStatus();
+        
+        // Open settings modal
+        const openSettings = () => {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            document.getElementById('modal-overlay')?.classList.add('visible');
+            const modal = document.getElementById('modal-settings');
+            if (modal) modal.style.display = 'flex';
+            this.updateValidationStatus('');
+        };
+
+        document.getElementById('btn-settings')?.addEventListener('click', openSettings);
+        document.getElementById('btn-engine-configure-key')?.addEventListener('click', openSettings);
+        
+        // Close modal
+        const closeSettings = () => {
+            const modal = document.getElementById('modal-settings');
+            if (modal) modal.style.display = 'none';
+            document.getElementById('modal-overlay')?.classList.remove('visible');
+        };
+
+        document.getElementById('btn-close-settings-x')?.addEventListener('click', closeSettings);
+        document.getElementById('btn-cancel-settings')?.addEventListener('click', closeSettings);
+        
+        // Save key
+        document.getElementById('btn-save-settings')?.addEventListener('click', () => {
+            const newKey = document.getElementById('gemini-api-key')?.value.trim();
+            if (newKey) {
+                localStorage.setItem('gemini_api_key', newKey);
+            } else {
+                localStorage.removeItem('gemini_api_key');
+            }
+            this.updateUIStatus();
+            closeSettings();
+            alert('✓ Gemini API Key saved successfully! The swarm is now ready to generate custom apps.');
+        });
+
+        // Clear key
+        document.getElementById('btn-clear-key')?.addEventListener('click', () => {
+            if (confirm('Are you sure you want to remove your saved Gemini API Key?')) {
+                localStorage.removeItem('gemini_api_key');
+                if (keyInput) keyInput.value = '';
+                this.updateUIStatus();
+                this.updateValidationStatus('Key removed.', '#ef4444');
+            }
+        });
+
+        // Toggle visibility
+        document.getElementById('btn-toggle-key-visibility')?.addEventListener('click', () => {
+            if (keyInput) {
+                keyInput.type = keyInput.type === 'password' ? 'text' : 'password';
+            }
+        });
+
+        // Test key connection
+        document.getElementById('btn-test-key')?.addEventListener('click', async () => {
+            const inputVal = document.getElementById('gemini-api-key')?.value.trim();
+            if (!inputVal) {
+                this.updateValidationStatus('⚠️ Please paste an API key first.', '#f59e0b');
+                return;
+            }
+            this.updateValidationStatus('Testing connection...', '#3b82f6');
+            const result = await GeminiAPI.testApiKey(inputVal);
+            if (result.success) {
+                this.updateValidationStatus(`✓ Connected to ${result.model}!`, '#10b981');
+            } else {
+                this.updateValidationStatus(`❌ Connection failed: ${result.error}`, '#ef4444');
+            }
+        });
+    }
+
+    static updateValidationStatus(msg, color = '#64748b') {
+        const el = document.getElementById('key-validation-status');
+        if (el) {
+            el.textContent = msg;
+            el.style.color = color;
+        }
+    }
+
+    static updateUIStatus() {
+        const key = this.getApiKey();
+        const badge = document.getElementById('api-status-badge');
+        const statusBar = document.getElementById('ai-engine-status-bar');
+        const engineText = document.getElementById('ai-engine-text');
+        const engineIcon = document.getElementById('ai-engine-icon');
+
+        if (key) {
+            if (badge) {
+                badge.textContent = 'Active ✓';
+                badge.style.background = '#dcfce7';
+                badge.style.color = '#166534';
+            }
+            if (statusBar) {
+                statusBar.style.background = '#f0fdf4';
+                statusBar.style.border = '1px solid #bbf7d0';
+            }
+            if (engineIcon) engineIcon.textContent = '🟢';
+            if (engineText) engineText.innerHTML = '<strong>Gemini AI Engine: Connected</strong> — Live Swarm will automatically code, test & package custom apps for any goal.';
+        } else {
+            if (badge) {
+                badge.textContent = 'Not Set';
+                badge.style.background = '#fef3c7';
+                badge.style.color = '#92400e';
+            }
+            if (statusBar) {
+                statusBar.style.background = '#fffbeb';
+                statusBar.style.border = '1px solid #fde68a';
+            }
+            if (engineIcon) engineIcon.textContent = '🔑';
+            if (engineText) engineText.innerHTML = '<strong>Gemini API Key: Not Set</strong> — Click "Configure Key" to connect your free key for unlimited AI app generation.';
+        }
+    }
+
+    static getApiKey() {
+        return localStorage.getItem('gemini_api_key');
+    }
+    
+    static promptForApiKey() {
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        document.getElementById('modal-overlay')?.classList.add('visible');
+        const modal = document.getElementById('modal-settings');
+        if (modal) modal.style.display = 'flex';
+    }
+}
+
+class GeminiAPI {
+    static MODELS = [
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
+        'gemini-1.5-pro',
+        'gemini-2.5-pro',
+        'gemini-3.6-flash'
+    ];
+
+    // Classify app complexity to scale generation strategy
+    static classifyComplexity(goalText) {
+        const g = (goalText || '').toLowerCase();
+        const enterpriseKeywords = ['enterprise', 'erp', 'crm', 'saas', 'platform', 'marketplace', 'social media', 'social network', 'instagram', 'facebook', 'twitter', 'uber', 'airbnb', 'amazon', 'netflix', 'spotify', 'youtube', 'tiktok', 'whatsapp', 'telegram', 'slack', 'discord', 'zoom', 'teams', 'office', 'suite', 'operating system', 'os', 'ide', 'code editor', 'photoshop', 'figma', 'canva', 'full stack', 'fullstack', 'banking', 'hospital', 'management system', 'complete system', 'large scale', 'production app', '5gb', '10gb', '5 gb', '10 gb', 'massive', 'complex'];
+        const largeKeywords = ['game', 'rpg', 'mmorpg', 'fps', 'freefire', 'free fire', 'pubg', 'fortnite', 'gta', 'minecraft', 'roblox', 'ecommerce', 'e-commerce', 'online store', 'marketplace', 'dashboard', 'admin panel', 'cms', 'blog platform', 'learning management', 'lms', 'project management', 'video editor', 'music studio', 'trading platform', 'crypto exchange', 'portfolio', 'analytics', 'ai assistant', 'chatbot platform'];
+        const mediumKeywords = ['calculator', 'todo', 'weather', 'timer', 'pomodoro', 'notes', 'quiz', 'survey', 'form', 'budget tracker', 'recipe', 'fitness', 'countdown', 'gallery', 'landing page', 'portfolio site', 'simple game', 'snake', 'tic tac toe', 'pong'];
+        
+        if (enterpriseKeywords.some(k => g.includes(k))) return 'enterprise';
+        if (largeKeywords.some(k => g.includes(k))) return 'large';
+        if (mediumKeywords.some(k => g.includes(k))) return 'small';
+        return 'medium'; // default
+    }
+
+    static async testApiKey(apiKey) {
+        for (const model of this.MODELS) {
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: 'Ping. Reply OK.' }] }],
+                        generationConfig: { maxOutputTokens: 10 }
+                    })
+                });
+                const data = await response.json();
+                if (data.error) {
+                    continue;
+                }
+                if (data.candidates && data.candidates.length > 0) {
+                    return { success: true, model };
+                }
+            } catch (err) {
+                // Try next model
+            }
+        }
+        return { success: false, error: 'Invalid API key or model unavailable' };
+    }
+
+    // Core API call with model fallback
+    static async _callGemini(prompt, maxTokens = 65536, temperature = 0.7) {
+        const apiKey = SettingsManager.getApiKey();
+        if (!apiKey) throw new Error('MISSING_API_KEY');
+
+        let lastError = null;
+        for (const model of this.MODELS) {
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { temperature, maxOutputTokens: maxTokens }
+                    })
+                });
+                const data = await response.json();
+                if (data.error) {
+                    lastError = new Error(data.error.message || 'API Error');
+                    continue;
+                }
+                let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!text) continue;
+                return text;
+            } catch (error) {
+                lastError = error;
+            }
+        }
+        throw lastError || new Error('Failed across all Gemini models.');
+    }
+
+    // Generate app with multi-pass for large/enterprise complexity
+    static async generateApp(goalText, onProgress = null) {
+        const complexity = this.classifyComplexity(goalText);
+        const log = (msg) => { if (onProgress) onProgress(msg); };
+
+        log(`Complexity: ${complexity.toUpperCase()} — Assembling swarm strategy...`);
+
+        // ── PASS 1: Core Application ──
+        log('Pass 1/3: Generating core application structure...');
+        const basePrompt = this._buildPrompt(goalText, complexity);
+        let htmlCode = await this._callGemini(basePrompt, 65536, 0.7);
+        htmlCode = this._cleanMarkdown(htmlCode);
+
+        if (complexity === 'small') {
+            return htmlCode; // Single pass is enough for simple apps
+        }
+
+        // ── PASS 2: Feature Enhancement (for medium, large, enterprise) ──
+        log('Pass 2/3: Enhancing features, adding depth...');
+        try {
+            const enhancePrompt = `You are an expert software engineer. Below is a working HTML application. Your job is to ENHANCE it with more features, more detail, and better UX. DO NOT remove anything that works. ADD to it.
+
+Current app code:
+---
+${htmlCode.substring(0, 30000)}
+---
+
+The original goal was: "${goalText}"
+Complexity level: ${complexity}
+
+Enhancement requirements for ${complexity} apps:
+${complexity === 'enterprise' ? `
+- Add a comprehensive navigation sidebar or top menu with at least 5 sections/pages (use JS to show/hide sections)
+- Add a settings/preferences panel
+- Add data tables with sorting, filtering, and pagination
+- Add charts/graphs using Canvas or SVG
+- Add notification/toast system
+- Add search functionality across the app
+- Add user profile/account section
+- Add loading states and skeleton screens
+- Add keyboard shortcuts
+- Make it look like a real production SaaS application with 10+ screens` : ''}
+${complexity === 'large' ? `
+- Add at least 3 more interactive features or screens
+- Add particle effects or animations for games
+- Add detailed statistics or analytics views
+- Add settings/customization options
+- Improve visual polish with gradients, shadows, and transitions
+- Add sound effects using Web Audio API if relevant` : ''}
+${complexity === 'medium' ? `
+- Add 1-2 more useful features
+- Polish animations and transitions
+- Improve the color scheme and typography
+- Add localStorage persistence for user data
+- Add a dark/light mode toggle` : ''}
+
+Output ONLY the complete enhanced HTML document. No explanations, no markdown.`;
+
+            const enhanced = await this._callGemini(enhancePrompt, 65536, 0.6);
+            const cleanEnhanced = this._cleanMarkdown(enhanced);
+            if (cleanEnhanced.includes('<!DOCTYPE') || cleanEnhanced.includes('<html')) {
+                htmlCode = cleanEnhanced;
+            }
+        } catch (e) {
+            console.warn('Enhancement pass failed, using base version:', e.message);
+        }
+
+        if (complexity !== 'enterprise') {
+            return htmlCode;
+        }
+
+        // ── PASS 3: Enterprise Polish (only for enterprise) ──
+        log('Pass 3/3: Enterprise polish — adding admin panels, dashboards...');
+        try {
+            const polishPrompt = `You are a senior principal engineer at a Fortune 500 company. Below is an application. Make it ENTERPRISE-GRADE.
+
+Current code (first 25000 chars):
+---
+${htmlCode.substring(0, 25000)}
+---
+
+Original goal: "${goalText}"
+
+Enterprise requirements:
+- Add a professional onboarding/welcome wizard that appears on first visit (use localStorage to track)
+- Add breadcrumb navigation
+- Add a command palette (Ctrl+K) for quick actions
+- Add role-based views (admin/user toggle)
+- Add export to CSV/PDF functionality for any data tables
+- Add real-time clock in header
+- Add activity log/audit trail panel
+- Ensure all modals have proper close/escape handlers
+- Add footer with version number and links
+- Professional color scheme (dark sidebar, light content area)
+
+Output ONLY the complete final HTML. No explanations.`;
+
+            const polished = await this._callGemini(polishPrompt, 65536, 0.5);
+            const cleanPolished = this._cleanMarkdown(polished);
+            if (cleanPolished.includes('<!DOCTYPE') || cleanPolished.includes('<html')) {
+                htmlCode = cleanPolished;
+            }
+        } catch (e) {
+            console.warn('Enterprise polish pass failed:', e.message);
+        }
+
+        return htmlCode;
+    }
+
+    // Modify/extend an existing generated app with a follow-up instruction
+    static async modifyApp(existingCode, modifyInstruction) {
+        const prompt = `You are a world-class software engineer. Below is a complete working HTML application. The user wants you to MODIFY it.
+
+EXISTING APP CODE (first 30000 chars):
+---
+${existingCode.substring(0, 30000)}
+---
+
+USER'S MODIFICATION REQUEST: "${modifyInstruction}"
+
+Rules:
+1. Output ONLY the complete modified HTML document (<!DOCTYPE html> to </html>).
+2. Keep ALL existing functionality intact unless the user explicitly asks to remove something.
+3. ADD the requested changes/features seamlessly.
+4. Maintain the existing design style and color scheme.
+5. No markdown, no explanations — just the code.`;
+
+        let result = await this._callGemini(prompt, 65536, 0.6);
+        return this._cleanMarkdown(result);
+    }
+
+    static _buildPrompt(goalText, complexity) {
+        const sizeGuide = {
+            small: 'This is a simple utility app. Keep it focused and clean. ~200-500 lines of code.',
+            medium: 'This is a medium-complexity app. Include multiple features and good UX. ~500-1500 lines of code.',
+            large: 'This is a LARGE, feature-rich application. Build it like a real production app with multiple screens/views, rich interactions, animations, and deep functionality. ~1500-4000 lines of code. Make it impressive.',
+            enterprise: 'This is an ENTERPRISE-GRADE application. Build it like a real SaaS product with navigation, multiple sections, data management, charts, settings, user management simulation, and professional UI. ~3000-6000+ lines of code. Think: production software that a company would pay for.'
+        };
+
+        return `You are a world-class principal software engineer, UI/UX designer, and full-stack architect.
+The user wants you to build a complete, production-grade application for this goal: "${goalText}".
+
+APP SCALE: ${complexity.toUpperCase()} — ${sizeGuide[complexity]}
+
+Requirements:
+1. Output ONLY a complete, single-file HTML document (starting with <!DOCTYPE html> and ending with </html>). No markdown backticks, no explanations.
+2. DESIGN & USER-FRIENDLINESS:
+   - Modern, sleek UI with smooth transitions, clean typography (system fonts or Google Fonts via CDN), and polished colors.
+   - Fully responsive layout: works flawlessly on mobile phones, tablets, and desktop screens.
+   - Include touch controls on screen (buttons / joystick / D-pad) if it is an arcade or action game so it works on mobile devices.
+   - Use CSS Grid and Flexbox for layouts. Use CSS custom properties for theming.
+   - Add subtle animations (hover effects, transitions, loading states).
+3. IN-APP GUIDELINES & HOW TO USE:
+   - Every app MUST feature an accessible "❓ How to Use / Guidelines" button or modal overlay.
+   - Explain clear step-by-step instructions, controls, rules, tips, and goals.
+4. FULL FUNCTIONALITY & INTERACTIVITY:
+   - Must be 100% interactive and fully functional with rich client-side JavaScript logic (no dummy dead buttons).
+   - If audio/sound is appropriate, synthesize using Web Audio API (AudioContext).
+   - Include score tracking, reset/restart, localStorage persistence where relevant.
+   - For games: implement proper game loops, collision detection, levels, particle effects, power-ups.
+   - For tools: implement undo/redo, keyboard shortcuts, data export.
+   - For dashboards: implement charts using Canvas, sortable tables, filters.
+5. STANDALONE & ZERO EXTERNAL BACKEND:
+   - Must run self-contained in any modern browser iframe.
+   - Use localStorage for data persistence.
+   - Use Canvas or SVG for any graphical elements.
+${complexity === 'enterprise' || complexity === 'large' ? `6. LARGE APP STRUCTURE:
+   - Use a single-page application pattern with JavaScript-driven routing/views.
+   - Implement a navigation system (sidebar or top nav with tabs).
+   - Create at least ${complexity === 'enterprise' ? '8-12' : '4-6'} distinct screens/sections.
+   - Add a search bar, notification area, and user avatar placeholder in the header.
+   - Use class-based or module pattern JavaScript architecture.
+   - Add loading states and smooth page transitions between views.` : ''}`;
+    }
+
+    static _cleanMarkdown(text) {
+        if (!text) return '';
+        return text.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+    }
+}
+
+class AppPackager {
+    static openPlayStoreGuide() {
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        document.getElementById('modal-overlay')?.classList.add('visible');
+        const modal = document.getElementById('modal-playstore');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    static async downloadAppStoreBundle(htmlCode, title) {
+        if (!window.JSZip) {
+            alert("JSZip library not loaded yet. Please try again in a moment.");
+            return;
+        }
+        
+        const zip = new JSZip();
+        const safeTitle = (title || 'AgentApp').replace(/[^a-zA-Z0-9\s]/g, '').trim();
+        const shortTitle = safeTitle.substring(0, 16).replace(/\s+/g, '') || 'App';
+        
+        // 1. App Code
+        zip.file("index.html", htmlCode);
+        
+        // 2. Web App Manifest
+        const manifest = {
+            "short_name": shortTitle,
+            "name": safeTitle,
+            "description": `Built autonomously with Agent Universe Swarm for goal: "${safeTitle}"`,
+            "start_url": "./index.html",
+            "display": "standalone",
+            "orientation": "any",
+            "theme_color": "#0f172a",
+            "background_color": "#ffffff",
+            "icons": [
+                {
+                    "src": "icon-512.svg",
+                    "sizes": "512x512",
+                    "type": "image/svg+xml",
+                    "purpose": "any maskable"
+                }
+            ]
+        };
+        zip.file("manifest.json", JSON.stringify(manifest, null, 2));
+        
+        // 3. Service Worker for offline PWA
+        const sw = `// Progressive Web App Service Worker
+const CACHE_NAME = '${shortTitle.toLowerCase()}-cache-v1';
+const ASSETS = ['./', './index.html', './manifest.json'];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+      )
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((res) => res || fetch(event.request))
+  );
+});`;
+        zip.file("sw.js", sw);
+        
+        // 4. Capacitor Config for Android / iOS native wrapper
+        const capacitorConfig = {
+            "appId": `com.agentuniverse.${shortTitle.toLowerCase()}`,
+            "appName": safeTitle,
+            "webDir": ".",
+            "bundledWebRuntime": false
+        };
+        zip.file("capacitor.config.json", JSON.stringify(capacitorConfig, null, 2));
+
+        // 5. Package.json
+        const pkg = {
+            "name": shortTitle.toLowerCase(),
+            "version": "1.0.0",
+            "description": `${safeTitle} - Autonomous AI App`,
+            "main": "index.html",
+            "scripts": {
+                "android": "npx cap run android",
+                "ios": "npx cap run ios",
+                "sync": "npx cap sync"
+            },
+            "dependencies": {
+                "@capacitor/core": "^5.0.0",
+                "@capacitor/android": "^5.0.0",
+                "@capacitor/ios": "^5.0.0"
+            },
+            "devDependencies": {
+                "@capacitor/cli": "^5.0.0"
+            }
+        };
+        zip.file("package.json", JSON.stringify(pkg, null, 2));
+
+        // 6. SVG Icon
+        const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="100" fill="url(#grad)"/>
+  <circle cx="256" cy="256" r="140" fill="#ffffff" opacity="0.15"/>
+  <text x="50%" y="54%" font-family="Arial, sans-serif" font-size="160" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">⚡</text>
+</svg>`;
+        zip.file("icon-512.svg", iconSvg);
+
+        // 7. Publishing Instructions
+        const instructions = `# Google Play Store & Mobile App Store Publishing Guide
+================================================================
+
+App Name: ${safeTitle}
+Generated by: Agent Universe (Autonomous Swarm Engine)
+
+----------------------------------------------------------------
+OPTION 1: FASTEST (Zero Code via PWABuilder - 2 Minutes)
+----------------------------------------------------------------
+1. Host your index.html / manifest.json (or deploy your project to Netlify / Vercel / GitHub Pages).
+2. Go to https://www.pwabuilder.com
+3. Enter your deployed URL.
+4. Click "Package for Stores" -> "Google Play".
+5. Download the generated signed .aab (Android App Bundle).
+6. Upload the .aab to Google Play Developer Console (https://play.google.com/console).
+
+----------------------------------------------------------------
+OPTION 2: NATIVE ANDROID BUILD (Using Capacitor & Android Studio)
+----------------------------------------------------------------
+1. Open your terminal in this folder.
+2. Install dependencies:
+     npm install
+3. Add the Android platform:
+     npx cap add android
+4. Open the Android project in Android Studio:
+     npx cap open android
+5. In Android Studio:
+   - Go to Build > Generate Signed Bundle / APK
+   - Choose "Android App Bundle (.aab)"
+   - Create your keystore or sign with your existing developer key.
+6. Upload the signed .aab to Google Play Console!
+
+----------------------------------------------------------------
+GOOGLE PLAY STORE REQUIREMENTS CHECKLIST:
+----------------------------------------------------------------
+[ ] Google Play Developer Account ($25 one-time registration fee)
+[ ] High-res icon (512x512 PNG/SVG included)
+[ ] Feature graphic (1024x500 PNG)
+[ ] Privacy Policy URL (can be a free GitHub Gist / Notion document)
+`;
+        zip.file("PLAYSTORE_PUBLISH_GUIDE.md", instructions);
+        
+        // Generate and download
+        const blob = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${shortTitle}-PlayStore-Bundle.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+}
+
+// ==========================================
 // CONSTANTS & INITIAL DOMAIN DATA
 // ==========================================
 
@@ -354,14 +923,17 @@ class GoalDecomposer {
             totalFactories += industry.factories.length;
         }
 
-        // Calculate estimated agents dynamically based on app complexity
+        // Calculate estimated agents dynamically based on app complexity (leveraging 1 Crore capacity)
+        const complexity = GeminiAPI.classifyComplexity(goalLower);
         let baseAgentsPerFactory = 350;
-        if (/calc|calculator|math|timer|stopwatch|clock/i.test(goalLower)) {
-            baseAgentsPerFactory = 120; // Lightweight utility: ~400-800 total agents
-        } else if (/form|todo|survey|quiz|markdown|budget|kanban/i.test(goalLower)) {
-            baseAgentsPerFactory = 220; // Medium tool: ~1,500-2,500 total agents
-        } else if (/video|creator|editor|movie|youtube|smartwatch|watch|crypto|ecommerce|store|shop|game|ai|chat|bot/i.test(goalLower)) {
-            baseAgentsPerFactory = 450; // Heavy complex system: ~5,000-8,000 total agents
+        if (complexity === 'small') {
+            baseAgentsPerFactory = 150; // Simple utility: ~500-1,000 total agents
+        } else if (complexity === 'medium') {
+            baseAgentsPerFactory = 500; // Medium tool: ~3,000-5,000 total agents
+        } else if (complexity === 'large') {
+            baseAgentsPerFactory = 2500; // Large app: ~15,000-30,000 total agents
+        } else if (complexity === 'enterprise') {
+            baseAgentsPerFactory = 10000; // Enterprise: ~80,000-150,000 total agents
         }
 
         const estimatedAgentsNeeded = totalFactories * baseAgentsPerFactory;
@@ -442,7 +1014,7 @@ class ArtifactGenerator {
         
         // Score each generator by counting keyword matches * weight
         let bestScore = 0;
-        let bestMethod = 'generateDynamicApp';
+        let bestMethod = null;
         
         for (const rule of this.GENERATOR_RULES) {
             let score = 0;
@@ -455,7 +1027,77 @@ class ArtifactGenerator {
             }
         }
         
-        return this[bestMethod](goalText);
+        if (bestScore >= 2 && bestMethod && this[bestMethod]) {
+            return this[bestMethod](goalText);
+        } else {
+            const data = this._smartApp(goalText, 'AI Swarm Generating...', '✨', 'dynamic');
+            const complexity = GeminiAPI.classifyComplexity(goalText);
+            
+            if (SettingsManager.getApiKey()) {
+                // Show enhanced loading screen with progress and complexity info
+                const passCount = complexity === 'small' ? 1 : (complexity === 'enterprise' ? 3 : 2);
+                data.code = `<!DOCTYPE html><html lang="en"><head><title>Generating...</title><style>
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a;color:#fff;margin:0;}
+.spinner{border:4px solid rgba(255,255,255,0.1);width:48px;height:48px;border-radius:50%;border-left-color:#38bdf8;animation:spin 1s linear infinite;}
+@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+.badge{background:${complexity === 'enterprise' ? '#7c3aed' : complexity === 'large' ? '#f97316' : '#3b82f6'};padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;display:inline-block;margin-bottom:16px;}
+.progress-bar{width:200px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin:16px auto 0;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#38bdf8,#818cf8);border-radius:2px;animation:progress ${passCount * 12}s ease-in-out forwards;}
+@keyframes progress{0%{width:0}50%{width:60%}90%{width:85%}100%{width:95%}}
+#status-text{color:#94a3b8;font-size:12px;margin-top:12px;transition:all 0.3s;}
+</style></head><body><div style="text-align:center">
+<div class="badge">${complexity} complexity</div>
+<div class="spinner" style="margin:0 auto 16px;"></div>
+<p>🤖 AI Swarm is building your app...</p>
+<p style="color:#64748b;font-size:11px;">Multi-pass generation: ${passCount} pass${passCount > 1 ? 'es' : ''}</p>
+<div class="progress-bar"><div class="progress-fill"></div></div>
+<p id="status-text">Initializing swarm strategy...</p>
+</div></body></html>`;
+                
+                // Progress callback updates the iframe status text
+                const onProgress = (msg) => {
+                    try {
+                        const frame = document.querySelector('.sandbox-iframe');
+                        if (frame && frame.contentDocument) {
+                            const el = frame.contentDocument.getElementById('status-text');
+                            if (el) el.textContent = msg;
+                        }
+                    } catch(e) {}
+                    AgentUniverse.instance?.eventLog?.log('task', `[SWARM] ${msg}`);
+                };
+
+                GeminiAPI.generateApp(goalText, onProgress).then(generatedCode => {
+                    data.code = generatedCode;
+                    data.title = 'AI Generated Application';
+                    data.complexity = complexity;
+                    data.generatedAt = Date.now();
+                    const frame = document.querySelector('.sandbox-iframe');
+                    if (frame && window.agentUniverse && window.agentUniverse.renderer._currentModalArtifact && window.agentUniverse.renderer._currentModalArtifact.text === goalText) {
+                        frame.srcdoc = generatedCode;
+                        const codeView = document.querySelector('#artifact-code-view code');
+                        if (codeView) codeView.textContent = generatedCode;
+                    }
+                    // Also update gallery player if loaded there
+                    const playerFrame = document.getElementById('sandbox-player-frame');
+                    if (playerFrame && playerFrame.srcdoc && playerFrame.srcdoc.includes('Generating')) {
+                        playerFrame.srcdoc = generatedCode;
+                    }
+                    AgentUniverse.instance?.eventLog?.log('task', `✅ App generated! Complexity: ${complexity.toUpperCase()}, Size: ${(generatedCode.length / 1024).toFixed(1)} KB`);
+                }).catch(err => {
+                    data.code = `<!DOCTYPE html><html lang="en"><body style="font-family:sans-serif;padding:40px;background:#0f172a;color:#fff;"><h2 style="color:#f87171">⚠️ Swarm Generation Failed</h2><p style="color:#94a3b8">${err.message}</p><p style="color:#64748b;font-size:13px;">Tip: Check your API key in Settings, or try a simpler goal first.</p></body></html>`;
+                    const frame = document.querySelector('.sandbox-iframe');
+                    if (frame && window.agentUniverse && window.agentUniverse.renderer._currentModalArtifact && window.agentUniverse.renderer._currentModalArtifact.text === goalText) {
+                        frame.srcdoc = data.code;
+                        const codeView = document.querySelector('#artifact-code-view code');
+                        if (codeView) codeView.textContent = data.code;
+                    }
+                });
+            } else {
+                data.code = `<!DOCTYPE html><html lang="en"><head><title>Missing API Key</title><style>body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;background:#f8fafc;color:#0f172a; margin:0;} .card{background:#fff; padding:32px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.05); text-align:center; max-width:400px; border:1px solid #e2e8f0;} h2{margin-top:0;} p{color:#64748b; line-height:1.5; font-size:14px; margin-bottom:24px;}</style></head><body><div class="card"><h2>🔑 API Key Required</h2><p>To dynamically generate custom applications like <b>"${goalText}"</b>, the AI Swarm needs access to the Gemini API.</p><p>Please close this window and click the <b>⚙️ Settings</b> button in the top right navigation bar to enter your API key.</p></div></body></html>`;
+            }
+            
+            return data;
+        }
     }
 
     // ⌚ SMARTWATCH OS SIMULATOR
@@ -3865,6 +4507,75 @@ class Renderer {
                     URL.revokeObjectURL(url);
                 }
             }
+            if (e.target.id === 'btn-download-bundle' || e.target.id === 'btn-player-bundle' || e.target.id === 'btn-playstore-download-zip') {
+                const goalId = this._currentModalArtifact ? this._currentModalArtifact.id : (this._playerCurrentGoalId || null);
+                const goal = (goalId ? this.universe.goals.find(g => g.id === goalId) : null) || this._currentModalArtifact || this.universe.goals[0];
+                const code = goal?.artifactData?.code;
+                const title = goal?.artifactData?.title || goal?.text || 'Swarm App';
+                if (code) {
+                    AppPackager.downloadAppStoreBundle(code, title);
+                }
+            }
+
+            // Modify App
+            if (e.target.id === 'btn-player-modify-app' || e.target.id === 'btn-modal-modify-app') {
+                const goalId = this._currentModalArtifact ? this._currentModalArtifact.id : (this._playerCurrentGoalId || null);
+                const goal = (goalId ? this.universe.goals.find(g => g.id === goalId) : null) || this._currentModalArtifact || this.universe.goals[0];
+                const code = goal?.artifactData?.code;
+                
+                if (!code) return;
+                if (!SettingsManager.getApiKey()) {
+                    alert('Please configure your Gemini API Key in Settings first.');
+                    return;
+                }
+
+                const modifyInstruction = prompt('What would you like to change or add to this app? (e.g. "add a dark mode toggle", "make the header red", "add a new settings page")');
+                if (!modifyInstruction || !modifyInstruction.trim()) return;
+
+                // Update UI to show it's working
+                const frameId = e.target.id === 'btn-player-modify-app' ? 'sandbox-player-frame' : null;
+                const frame = frameId ? document.getElementById(frameId) : document.querySelector('.sandbox-iframe');
+                
+                if (frame) {
+                    const loadingHtml = `<!DOCTYPE html><html lang="en"><body style="display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a;color:#fff;font-family:sans-serif;margin:0;"><div style="text-align:center;"><div style="border:4px solid rgba(255,255,255,0.1);width:40px;height:40px;border-radius:50%;border-left-color:#8b5cf6;animation:spin 1s linear infinite;margin:0 auto 16px;"></div><h3>Swarm is modifying the app...</h3><p style="color:#94a3b8;font-size:14px;">"${modifyInstruction}"</p></div><style>@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}</style></body></html>`;
+                    frame.srcdoc = loadingHtml;
+                }
+                
+                this.universe.eventLog.log('task', `[SWARM] Modifying app: "${modifyInstruction}"`);
+
+                GeminiAPI.modifyApp(code, modifyInstruction).then(newCode => {
+                    if (goal && goal.artifactData) {
+                        goal.artifactData.code = newCode;
+                        goal.artifactData.generatedAt = Date.now();
+                        goal.text = goal.text + ` (Modified: ${modifyInstruction})`; // Keep track
+                    }
+                    if (frame) frame.srcdoc = newCode;
+                    
+                    const codeView = document.querySelector('#artifact-code-view code');
+                    if (codeView && this._currentModalArtifact && this._currentModalArtifact.id === goalId) {
+                        codeView.textContent = newCode;
+                    }
+                    this.universe.eventLog.log('task', `✅ App modified successfully!`);
+                }).catch(err => {
+                    this.universe.eventLog.log('alert', `❌ Modification failed: ${err.message}`);
+                    alert('Failed to modify app: ' + err.message);
+                    if (frame) frame.srcdoc = code; // restore original
+                });
+            }
+
+            // Play Store Guide
+            if (e.target.id === 'btn-open-playstore-guide' || e.target.id === 'btn-player-playstore-guide') {
+                AppPackager.openPlayStoreGuide();
+            }
+            if (e.target.id === 'btn-close-playstore' || e.target.id === 'btn-close-playstore-x') {
+                document.getElementById('modal-playstore').style.display = 'none';
+                document.getElementById('modal-overlay').classList.remove('visible');
+            }
+
+            // Configure API Key (Hero Bar)
+            if (e.target.id === 'btn-engine-configure-key') {
+                SettingsManager.promptForApiKey();
+            }
 
             // Clear Feed
             if (e.target.id === 'btn-clear-feed') {
@@ -4814,6 +5525,7 @@ class Renderer {
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    SettingsManager.init();
     const universe = new AgentUniverse();
     universe.init();
     window.agentUniverse = universe;
