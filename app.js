@@ -86,14 +86,18 @@ class AppStore {
         try {
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(apps));
         } catch(e) {
-            // localStorage might be full — try removing oldest apps
             console.warn('AppStore: localStorage full, trimming old apps', e);
-            while (apps.length > 5) {
+            let saved = false;
+            while (apps.length > 1) {
                 apps.pop();
                 try {
                     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(apps));
+                    saved = true;
                     break;
                 } catch(e2) { /* keep trimming */ }
+            }
+            if (!saved) {
+                alert('Warning: This generated app is too large to save in your browser\'s local storage. Please download it using the "Download" button to keep it!');
             }
         }
         return entry;
@@ -4569,7 +4573,8 @@ class Renderer {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `${(goal.text || 'app').replace(/[^a-z0-9]/gi, '_')}.html`;
+                    let safeName = (goal.artifactData?.title || goal.text || 'app').replace(/[^a-z0-9]/gi, '_').substring(0, 40);
+                    a.download = `${safeName}.html`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
@@ -4594,7 +4599,8 @@ class Renderer {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `${(this._currentModalArtifact?.text || 'app').replace(/[^a-z0-9]/gi, '_')}.html`;
+                    let safeName = (this._currentModalArtifact?.title || this._currentModalArtifact?.text || 'app').replace(/[^a-z0-9]/gi, '_').substring(0, 40);
+                    a.download = `${safeName}.html`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
@@ -4710,7 +4716,8 @@ class Renderer {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `${(savedApp.title || 'app').replace(/\s+/g, '-').toLowerCase()}.html`;
+                    let safeName = (savedApp.title || savedApp.goalText || 'app').replace(/[^a-z0-9]/gi, '_').substring(0, 40);
+                    a.download = `${safeName}.html`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
